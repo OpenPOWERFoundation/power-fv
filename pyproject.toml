@@ -1,5 +1,15 @@
-[build-system]
-requires = ["setuptools>=42", "setuptools_scm[toml]>=3.4"]
-build-backend = "setuptools.build_meta"
+[tool.poetry]
+name = "power-fv"
+version = "0.1.0"
+description = "Amaranth HDL library for formal verification of POWER processors"
+authors = ["Jean-François Nguyen <jf@jfng.fr>"]
+license = "BSD"
 
-[tool.setuptools_scm]
+[tool.poetry.dependencies]
+python = "^3.8"
+jinja2 = "~3.0"
+amaranth = {git = "https://github.com/amaranth-lang/amaranth.git", branch="main"}
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

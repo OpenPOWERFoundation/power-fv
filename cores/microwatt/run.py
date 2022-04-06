@@ -1,29 +1,48 @@
-import power_fv as pfv
+import argparse
+import os
 
 from amaranth import *
 from amaranth.asserts import *
+
+from power_fv import pfv
+from power_fv.tb import Testbench
+from power_fv.build import SymbiYosysPlatform
 
 from _wrapper import MicrowattWrapper
 
 
 class SmokeCheck(Elaboratable):
-    def __init__(self):
-        self.dut  = pfv.Interface()
+    def __init__(self, mode="bmc"):
+        self.mode = mode
         self.pre  = Signal()
         self.post = Signal()
+        self.pfv  = pfv.Interface()
 
     def elaborate(self, platform):
         m = Module()
-        with m.If(self.post):
-            m.d.comb += Assume(self.dut.stb)
+
+        if self.mode == "bmc":
+            with m.If(self.pre):
+                m.d.comb += Assume(self.pfv.stb)
+
+        if self.mode == "cover":
+            m.d.comb += Cover(self.pfv.stb)
+
         return m
 
 
 if __name__ == "__main__":
-    dut   = MicrowattWrapper()
-    check = SmokeCheck()
-    tb    = pfv.Testbench(check, dut, t_post=0)
-    plat  = pfv.SymbiYosysPlatform()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--mode", help="mode", type=str, choices=("cover", "bmc"), default="bmc")
+    parser.add_argument("--pre",  help="pre-condition step, in clock cycles (default: 10)",  type=int, default=10)
+    parser.add_argument("--post", help="post-condition step, in clock cycles (default: 10)", type=int, default=10)
+
+    args = parser.parse_args()
+
+    microwatt   = MicrowattWrapper()
+    smoke_check = SmokeCheck(mode=args.mode)
+    smoke_tb    = Testbench(smoke_check, microwatt, t_pre=args.pre, t_post=args.post)
+    platform    = SymbiYosysPlatform()
 
     microwatt_files = [
         "cache_ram.vhdl",
@@ -59,14 +78,15 @@ if __name__ == "__main__":
         "wishbone_types.vhdl",
         "writeback.vhdl",
     ]
-    import os
+
     for filename in microwatt_files:
         file = open(os.path.join(os.curdir, "microwatt", filename), "r")
-        plat.add_file(filename, file.read())
+        platform.add_file(filename, file.read())
 
-    plat.build(tb, name="smoke_tb",
-        sby_depth=2, sby_skip=1,
-        ghdl_top="core", ghdl_opts="--std=08 --no-formal",
+    platform.add_file("microwatt_top.vhdl", open(os.path.join(os.curdir, "microwatt_top.vhdl"), "r"))
+
+    platform.build(smoke_tb, name="smoke_tb", build_dir="build/smoke",
+        ghdl_opts="--std=08 --no-formal",
         # TODO: investigate why combinatorial loops appear with `prep -flatten -nordff`
         prep_opts="-nordff",
     )

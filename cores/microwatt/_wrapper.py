@@ -1,7 +1,7 @@
 from amaranth import *
 from amaranth.asserts import *
 
-import power_fv as pfv
+from power_fv import pfv
 
 
 __all__ = ["MicrowattWrapper"]
@@ -50,27 +50,14 @@ class MicrowattWrapper(Elaboratable):
 
         terminated     = Signal(    attrs={"keep": True})
 
-        m.submodules.core = Instance("core",
-            # FIXME: ghdl-yosys-plugin doesn't yet support setting parameters
-            # (see issue 136).
+        complete_tag   = Signal( 2, attrs={"keep": True})
+        complete_valid = Signal( 1, attrs={"keep": True})
 
-            # ("p", "SIM",                 False),
-            # ("p", "DISABLE_FLATTEN",     False),
-            # ("p", "EX1_BYPASS",          False),
-            # ("p", "HAS_FPU",             False),
-            # ("p", "HAS_BTC",             False),
-            # ("p", "ALT_RESET_ADDRESS",   0x00000000),
-            # ("p", "LOG_LENGTH",          0),
-            # ("p", "ICACHE_NUM_LINES",    0),
-            # ("p", "ICACHE_NUM_WAYS",     0),
-            # ("p", "ICACHE_TLB_SIZE",     0),
-            # ("p", "DCACHE_NUM_LINES",    0),
-            # ("p", "DCACHE_NUM_WAYS",     0),
-            # ("p", "DCACHE_TLB_SET_SIZE", 0),
-            # ("p", "DCACHE_TLB_NUM_WAYS", 0),
-
-            ("i", "clk",       ClockSignal()),
-            ("i", "rst",       ResetSignal()),
+        # FIXME: ghdl-yosys-plugin doesn't yet support setting parameters (see issue 136).
+        # As a workaround, use our own toplevel entity.
+        m.submodules.toplevel = Instance("toplevel",
+            ("i", "clk",       ClockSignal("sync")),
+            ("i", "rst",       ResetSignal("sync")),
             ("i", "alt_reset", Const(0)),
             ("i", "ext_irq",   Const(0)),
 
@@ -110,12 +97,15 @@ class MicrowattWrapper(Elaboratable):
 
             ("o", "terminated_out", terminated),
 
-            # TODO:
-            # ("o", "pfv_stb", self.pfv.stb),
-            # ...
+            ("o", "complete_out.tag",   complete_tag),
+            ("o", "complete_out.valid", complete_valid),
         )
 
-        # for now, to try run.py
-        m.d.comb += self.pfv.stb.eq(1)
+        m.d.comb += [
+            self.pfv.stb.eq(complete_valid),
+        ]
+
+        with m.If(Initial()):
+            m.d.comb += Assume(~complete_valid) # FIXME
 
         return m

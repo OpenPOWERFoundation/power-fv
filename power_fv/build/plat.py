@@ -112,12 +112,12 @@ class SymbiYosysPlatform(TemplatedPlatform):
             ]
             return m
 
-    def build(self, tb, **kwargs):
-        if not isinstance(tb, tb.Testbench):
-            raise TypeError("Testbench must be an instance of power_fv.tb.Testbench")
+    def build(self, top, **kwargs):
+        if not isinstance(top, tb.Testbench):
+            raise TypeError("Top-level must be an instance of power_fv.tb.Testbench")
 
-        mode  = tb.check.mode
-        skip  = tb.t_post
+        mode  = top.check.mode
+        skip  = top.t_post
         depth = skip + 1
 
-        return super().build(tb, mode=mode, depth=depth, skip=skip, **kwargs)
+        return super().build(top, mode=mode, depth=depth, skip=skip, **kwargs)

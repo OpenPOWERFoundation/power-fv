@@ -50,9 +50,6 @@ class MicrowattWrapper(Elaboratable):
 
         terminated     = Signal(    attrs={"keep": True})
 
-        complete_tag   = Signal( 2, attrs={"keep": True})
-        complete_valid = Signal( 1, attrs={"keep": True})
-
         # FIXME: ghdl-yosys-plugin doesn't yet support setting parameters (see issue 136).
         # As a workaround, use our own toplevel entity.
         m.submodules.toplevel = Instance("toplevel",
@@ -97,15 +94,12 @@ class MicrowattWrapper(Elaboratable):
 
             ("o", "terminated_out", terminated),
 
-            ("o", "complete_out.tag",   complete_tag),
-            ("o", "complete_out.valid", complete_valid),
+            ("o", "pfv_out.stb",   self.pfv.stb),
+            ("o", "pfv_out.insn",  self.pfv.insn),
+            ("o", "pfv_out.order", self.pfv.order),
         )
 
-        m.d.comb += [
-            self.pfv.stb.eq(complete_valid),
-        ]
-
         with m.If(Initial()):
-            m.d.comb += Assume(~complete_valid) # FIXME
+            m.d.comb += Assume(~self.pfv.stb)
 
         return m

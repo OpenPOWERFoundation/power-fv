@@ -5,6 +5,7 @@ use ieee.numeric_std.all;
 library work;
 use work.common.all;
 use work.wishbone_types.all;
+use work.powerfv_types.all;
 
 entity toplevel is
     port (
@@ -34,7 +35,7 @@ entity toplevel is
 
 	terminated_out   : out std_logic;
 
-        complete_out : out instr_tag_t
+        pfv_out : out pfv_t
         );
 end entity toplevel;
 
@@ -74,6 +75,6 @@ begin
             dmi_ack           => dmi_ack,
             ext_irq           => ext_irq,
             terminated_out    => terminated_out,
-            complete_out      => complete_out
+            pfv_out           => pfv_out
         );
 end architecture behave;

@@ -14,7 +14,7 @@ def _check_triggers(t_start, t_pre, t_post):
                          .format(t_start, t_post))
     if not isinstance(t_pre, int) or t_pre > t_post or t_pre < t_start:
         raise ValueError("t_pre must be an integer between t_start and t_post (i.e. [{},{}]), "
-                         "not {!r}".format(t_pre, t_start, t_post))
+                         "not {!r}".format(t_start, t_post, t_pre))
 
 
 class Testbench(Elaboratable):

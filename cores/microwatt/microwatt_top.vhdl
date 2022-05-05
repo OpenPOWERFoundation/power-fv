@@ -33,7 +33,7 @@ entity toplevel is
 
 	ext_irq		: in std_ulogic;
 
-	terminated_out   : out std_logic;
+	terminated_out  : out std_logic;
 
         pfv_out : out pfv_t
         );
@@ -44,19 +44,20 @@ begin
     core: entity work.core
         generic map (
             SIM                 => false,
-            DISABLE_FLATTEN     => true,
-            EX1_BYPASS          => false,
+            DISABLE_FLATTEN     => false,
+            EX1_BYPASS          => true,
             HAS_FPU             => false,
-            HAS_BTC             => false,
-            HAS_SHORT_MULT      => false
-            --LOG_LENGTH          => 0,
-            --ICACHE_NUM_LINES    => 0,
-            --ICACHE_NUM_WAYS     => 0,
-            --ICACHE_TLB_SIZE     => 0,
-            --DCACHE_NUM_LINES    => 0,
-            --DCACHE_NUM_WAYS     => 0,
-            --DCACHE_TLB_SET_SIZE => 0,
-            --DCACHE_TLB_NUM_WAYS => 0
+            HAS_BTC             => true,
+            HAS_SHORT_MULT      => false,
+            HAS_POWERFV         => true,
+            LOG_LENGTH          => 0,
+            ICACHE_NUM_LINES    => 2,
+            ICACHE_NUM_WAYS     => 1,
+            ICACHE_TLB_SIZE     => 1,
+            DCACHE_NUM_LINES    => 2,
+            DCACHE_NUM_WAYS     => 1,
+            DCACHE_TLB_SET_SIZE => 1,
+            DCACHE_TLB_NUM_WAYS => 1
             )
         port map (
             clk               => clk,

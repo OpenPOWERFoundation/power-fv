@@ -97,9 +97,17 @@ class MicrowattWrapper(Elaboratable):
             ("o", "pfv_out.stb",   self.pfv.stb),
             ("o", "pfv_out.insn",  self.pfv.insn),
             ("o", "pfv_out.order", self.pfv.order),
+            ("o", "pfv_out.intr",  self.pfv.intr),
+            ("o", "pfv_out.cia",   self.pfv.cia),
+            ("o", "pfv_out.nia",   self.pfv.nia),
         )
 
         with m.If(Initial()):
             m.d.comb += Assume(~self.pfv.stb)
+
+        m.d.comb += [
+            Assume(~dmi_req),
+            Assume(~terminated),
+        ]
 
         return m

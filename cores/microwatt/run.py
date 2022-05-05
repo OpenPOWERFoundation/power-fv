@@ -14,7 +14,7 @@ from _wrapper import MicrowattWrapper
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("check", help="check", type=str, choices=("unique"))
+    parser.add_argument("check", help="check", type=str, choices=("unique", "ia_fwd"))
     parser.add_argument("--mode", help="mode", type=str, choices=("cover", "bmc"), default="bmc")
     parser.add_argument("--pre",  help="pre-condition step, in clock cycles (default: 15)",  type=int, default=15)
     parser.add_argument("--post", help="post-condition step, in clock cycles (default: 15)", type=int, default=15)
@@ -24,6 +24,8 @@ if __name__ == "__main__":
     check = None
     if args.check == "unique":
         check = UniquenessCheck() if args.mode == "bmc" else UniquenessCover()
+    if args.check == "ia_fwd":
+        check = IAForwardCheck() if args.mode == "bmc" else IAForwardCover()
 
     cpu       = MicrowattWrapper()
     testbench = Testbench(check, cpu, t_pre=args.pre, t_post=args.post)
@@ -77,7 +79,7 @@ if __name__ == "__main__":
         name      = f"{args.check}_{args.mode}_tb",
         build_dir = f"build/{args.check}_{args.mode}",
         mode      = args.mode,
-        ghdl_opts = "--std=08 --no-formal",
+        ghdl_opts = "--std=08",
         # TODO: investigate why combinatorial loops appear with `prep -flatten -nordff`
         prep_opts = "-nordff",
     )

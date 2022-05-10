@@ -90,7 +90,27 @@ entity toplevel is
         pfv_cr7_r_stb  : out std_ulogic;
         pfv_cr7_r_data : out std_ulogic_vector(3 downto 0);
         pfv_cr7_w_stb  : out std_ulogic;
-        pfv_cr7_w_data : out std_ulogic_vector(3 downto 0)
+        pfv_cr7_w_data : out std_ulogic_vector(3 downto 0);
+
+        pfv_lr_r_stb   : out std_ulogic;
+        pfv_lr_r_data  : out std_ulogic_vector(63 downto 0);
+        pfv_lr_w_stb   : out std_ulogic;
+        pfv_lr_w_data  : out std_ulogic_vector(63 downto 0);
+
+        pfv_ctr_r_stb  : out std_ulogic;
+        pfv_ctr_r_data : out std_ulogic_vector(63 downto 0);
+        pfv_ctr_w_stb  : out std_ulogic;
+        pfv_ctr_w_data : out std_ulogic_vector(63 downto 0);
+
+        pfv_xer_r_stb  : out std_ulogic;
+        pfv_xer_r_data : out std_ulogic_vector(63 downto 0);
+        pfv_xer_w_stb  : out std_ulogic;
+        pfv_xer_w_data : out std_ulogic_vector(63 downto 0);
+
+        pfv_tar_r_stb  : out std_ulogic;
+        pfv_tar_r_data : out std_ulogic_vector(63 downto 0);
+        pfv_tar_w_stb  : out std_ulogic;
+        pfv_tar_w_data : out std_ulogic_vector(63 downto 0)
         );
 end entity toplevel;
 
@@ -191,5 +211,25 @@ begin
         pfv_cr7_r_data <= pfv.cr(7).r_data;
         pfv_cr7_w_stb  <= pfv.cr(7).w_stb;
         pfv_cr7_w_data <= pfv.cr(7).w_data;
+
+        pfv_lr_r_stb   <= pfv.lr.r_stb;
+        pfv_lr_r_data  <= pfv.lr.r_data;
+        pfv_lr_w_stb   <= pfv.lr.w_stb;
+        pfv_lr_w_data  <= pfv.lr.w_data;
+
+        pfv_ctr_r_stb  <= pfv.ctr.r_stb;
+        pfv_ctr_r_data <= pfv.ctr.r_data;
+        pfv_ctr_w_stb  <= pfv.ctr.w_stb;
+        pfv_ctr_w_data <= pfv.ctr.w_data;
+
+        pfv_xer_r_stb  <= pfv.xer.r_stb;
+        pfv_xer_r_data <= pfv.xer.r_data;
+        pfv_xer_w_stb  <= pfv.xer.w_stb;
+        pfv_xer_w_data <= pfv.xer.w_data;
+
+        pfv_tar_r_stb  <= pfv.tar.r_stb;
+        pfv_tar_r_data <= pfv.tar.r_data;
+        pfv_tar_w_stb  <= pfv.tar.w_stb;
+        pfv_tar_w_data <= pfv.tar.w_data;
 
 end architecture behave;

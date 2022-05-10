@@ -35,7 +35,7 @@ class Interface(Record):
 
         def gprf_port(access):
             assert access in ("r", "w", "rw")
-            layout = [("addr", 5)]
+            layout = [("index", 5)]
             if "r" in access:
                 layout += [
                     ("r_stb",   1),

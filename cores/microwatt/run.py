@@ -14,7 +14,7 @@ from _wrapper import MicrowattWrapper
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("check", help="check", type=str, choices=("unique", "ia_fwd"))
+    parser.add_argument("check", help="check", type=str, choices=("unique", "ia_fwd", "gpr"))
     parser.add_argument("--mode", help="mode", type=str, choices=("cover", "bmc"), default="bmc")
     parser.add_argument("--pre",  help="pre-condition step, in clock cycles (default: 15)",  type=int, default=15)
     parser.add_argument("--post", help="post-condition step, in clock cycles (default: 15)", type=int, default=15)
@@ -26,6 +26,8 @@ if __name__ == "__main__":
         check = UniquenessCheck() if args.mode == "bmc" else UniquenessCover()
     if args.check == "ia_fwd":
         check = IAForwardCheck() if args.mode == "bmc" else IAForwardCover()
+    if args.check == "gpr":
+        check = GPRCheck()
 
     cpu       = MicrowattWrapper()
     testbench = Testbench(check, cpu, t_pre=args.pre, t_post=args.post)

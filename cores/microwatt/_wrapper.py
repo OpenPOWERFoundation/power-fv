@@ -94,12 +94,32 @@ class MicrowattWrapper(Elaboratable):
 
             ("o", "terminated_out", terminated),
 
-            ("o", "pfv_out.stb",   self.pfv.stb),
-            ("o", "pfv_out.insn",  self.pfv.insn),
-            ("o", "pfv_out.order", self.pfv.order),
-            ("o", "pfv_out.intr",  self.pfv.intr),
-            ("o", "pfv_out.cia",   self.pfv.cia),
-            ("o", "pfv_out.nia",   self.pfv.nia),
+            ("o", "pfv_stb",        self.pfv.stb),
+            ("o", "pfv_insn",       self.pfv.insn),
+            ("o", "pfv_order",      self.pfv.order),
+            ("o", "pfv_intr",       self.pfv.intr),
+            ("o", "pfv_cia",        self.pfv.cia),
+            ("o", "pfv_nia",        self.pfv.nia),
+
+            ("o", "pfv_ra_index",   self.pfv.ra.index),
+            ("o", "pfv_ra_r_stb",   self.pfv.ra.r_stb),
+            ("o", "pfv_ra_r_data",  self.pfv.ra.r_data),
+            ("o", "pfv_ra_w_stb",   self.pfv.ra.w_stb),
+            ("o", "pfv_ra_w_data",  self.pfv.ra.w_data),
+
+            ("o", "pfv_rb_index",   self.pfv.rb.index),
+            ("o", "pfv_rb_r_stb",   self.pfv.rb.r_stb),
+            ("o", "pfv_rb_r_data",  self.pfv.rb.r_data),
+
+            ("o", "pfv_rs_index",   self.pfv.rs.index),
+            ("o", "pfv_rs_r_stb",   self.pfv.rs.r_stb),
+            ("o", "pfv_rs_r_data",  self.pfv.rs.r_data),
+
+            ("o", "pfv_rt_index",   self.pfv.rt.index),
+            ("o", "pfv_rt_r_stb",   self.pfv.rt.r_stb),
+            ("o", "pfv_rt_r_data",  self.pfv.rt.r_data),
+            ("o", "pfv_rt_w_stb",   self.pfv.rt.w_stb),
+            ("o", "pfv_rt_w_data",  self.pfv.rt.w_data),
         )
 
         with m.If(Initial()):

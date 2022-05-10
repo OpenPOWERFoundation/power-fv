@@ -35,11 +35,34 @@ entity toplevel is
 
 	terminated_out  : out std_logic;
 
-        pfv_out : out pfv_t
+        pfv_stb        : out std_ulogic;
+        pfv_insn       : out std_ulogic_vector(63 downto 0);
+        pfv_order      : out std_ulogic_vector(63 downto 0);
+        pfv_intr       : out std_ulogic;
+        pfv_cia        : out std_ulogic_vector(63 downto 0);
+        pfv_nia        : out std_ulogic_vector(63 downto 0);
+
+        pfv_ra_index   : out std_ulogic_vector( 4 downto 0);
+        pfv_ra_r_stb   : out std_ulogic;
+        pfv_ra_r_data  : out std_ulogic_vector(63 downto 0);
+        pfv_ra_w_stb   : out std_ulogic;
+        pfv_ra_w_data  : out std_ulogic_vector(63 downto 0);
+        pfv_rb_index   : out std_ulogic_vector( 4 downto 0);
+        pfv_rb_r_stb   : out std_ulogic;
+        pfv_rb_r_data  : out std_ulogic_vector(63 downto 0);
+        pfv_rs_index   : out std_ulogic_vector( 4 downto 0);
+        pfv_rs_r_stb   : out std_ulogic;
+        pfv_rs_r_data  : out std_ulogic_vector(63 downto 0);
+        pfv_rt_index   : out std_ulogic_vector( 4 downto 0);
+        pfv_rt_r_stb   : out std_ulogic;
+        pfv_rt_r_data  : out std_ulogic_vector(63 downto 0);
+        pfv_rt_w_stb   : out std_ulogic;
+        pfv_rt_w_data  : out std_ulogic_vector(63 downto 0);
         );
 end entity toplevel;
 
 architecture behave of toplevel is
+    signal pfv : pfv_t;
 begin
     core: entity work.core
         generic map (
@@ -76,6 +99,31 @@ begin
             dmi_ack           => dmi_ack,
             ext_irq           => ext_irq,
             terminated_out    => terminated_out,
-            pfv_out           => pfv_out
+            pfv_out           => pfv
         );
+
+        pfv_stb        <= pfv.stb;
+        pfv_insn       <= pfv.insn;
+        pfv_order      <= pfv.order;
+        pfv_intr       <= pfv.intr;
+        pfv_cia        <= pfv.cia;
+        pfv_nia        <= pfv.nia;
+
+        pfv_ra_index   <= pfv.ra.index;
+        pfv_ra_r_stb   <= pfv.ra.r_stb;
+        pfv_ra_r_data  <= pfv.ra.r_data;
+        pfv_ra_w_stb   <= pfv.ra.w_stb;
+        pfv_ra_w_data  <= pfv.ra.w_data;
+        pfv_rb_index   <= pfv.rb.index;
+        pfv_rb_r_stb   <= pfv.rb.r_stb;
+        pfv_rb_r_data  <= pfv.rb.r_data;
+        pfv_rs_index   <= pfv.rs.index;
+        pfv_rs_r_stb   <= pfv.rs.r_stb;
+        pfv_rs_r_data  <= pfv.rs.r_data;
+        pfv_rt_index   <= pfv.rt.index;
+        pfv_rt_r_stb   <= pfv.rt.r_stb;
+        pfv_rt_r_data  <= pfv.rt.r_data;
+        pfv_rt_w_stb   <= pfv.rt.w_stb;
+        pfv_rt_w_data  <= pfv.rt.w_data;
+
 end architecture behave;

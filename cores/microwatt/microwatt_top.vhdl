@@ -58,6 +58,39 @@ entity toplevel is
         pfv_rt_r_data  : out std_ulogic_vector(63 downto 0);
         pfv_rt_w_stb   : out std_ulogic;
         pfv_rt_w_data  : out std_ulogic_vector(63 downto 0);
+
+        pfv_cr0_r_stb  : out std_ulogic;
+        pfv_cr0_r_data : out std_ulogic_vector(3 downto 0);
+        pfv_cr0_w_stb  : out std_ulogic;
+        pfv_cr0_w_data : out std_ulogic_vector(3 downto 0);
+        pfv_cr1_r_stb  : out std_ulogic;
+        pfv_cr1_r_data : out std_ulogic_vector(3 downto 0);
+        pfv_cr1_w_stb  : out std_ulogic;
+        pfv_cr1_w_data : out std_ulogic_vector(3 downto 0);
+        pfv_cr2_r_stb  : out std_ulogic;
+        pfv_cr2_r_data : out std_ulogic_vector(3 downto 0);
+        pfv_cr2_w_stb  : out std_ulogic;
+        pfv_cr2_w_data : out std_ulogic_vector(3 downto 0);
+        pfv_cr3_r_stb  : out std_ulogic;
+        pfv_cr3_r_data : out std_ulogic_vector(3 downto 0);
+        pfv_cr3_w_stb  : out std_ulogic;
+        pfv_cr3_w_data : out std_ulogic_vector(3 downto 0);
+        pfv_cr4_r_stb  : out std_ulogic;
+        pfv_cr4_r_data : out std_ulogic_vector(3 downto 0);
+        pfv_cr4_w_stb  : out std_ulogic;
+        pfv_cr4_w_data : out std_ulogic_vector(3 downto 0);
+        pfv_cr5_r_stb  : out std_ulogic;
+        pfv_cr5_r_data : out std_ulogic_vector(3 downto 0);
+        pfv_cr5_w_stb  : out std_ulogic;
+        pfv_cr5_w_data : out std_ulogic_vector(3 downto 0);
+        pfv_cr6_r_stb  : out std_ulogic;
+        pfv_cr6_r_data : out std_ulogic_vector(3 downto 0);
+        pfv_cr6_w_stb  : out std_ulogic;
+        pfv_cr6_w_data : out std_ulogic_vector(3 downto 0);
+        pfv_cr7_r_stb  : out std_ulogic;
+        pfv_cr7_r_data : out std_ulogic_vector(3 downto 0);
+        pfv_cr7_w_stb  : out std_ulogic;
+        pfv_cr7_w_data : out std_ulogic_vector(3 downto 0)
         );
 end entity toplevel;
 
@@ -125,5 +158,38 @@ begin
         pfv_rt_r_data  <= pfv.rt.r_data;
         pfv_rt_w_stb   <= pfv.rt.w_stb;
         pfv_rt_w_data  <= pfv.rt.w_data;
+
+        pfv_cr0_r_stb  <= pfv.cr(0).r_stb;
+        pfv_cr0_r_data <= pfv.cr(0).r_data;
+        pfv_cr0_w_stb  <= pfv.cr(0).w_stb;
+        pfv_cr0_w_data <= pfv.cr(0).w_data;
+        pfv_cr1_r_stb  <= pfv.cr(1).r_stb;
+        pfv_cr1_r_data <= pfv.cr(1).r_data;
+        pfv_cr1_w_stb  <= pfv.cr(1).w_stb;
+        pfv_cr1_w_data <= pfv.cr(1).w_data;
+        pfv_cr2_r_stb  <= pfv.cr(2).r_stb;
+        pfv_cr2_r_data <= pfv.cr(2).r_data;
+        pfv_cr2_w_stb  <= pfv.cr(2).w_stb;
+        pfv_cr2_w_data <= pfv.cr(2).w_data;
+        pfv_cr3_r_stb  <= pfv.cr(3).r_stb;
+        pfv_cr3_r_data <= pfv.cr(3).r_data;
+        pfv_cr3_w_stb  <= pfv.cr(3).w_stb;
+        pfv_cr3_w_data <= pfv.cr(3).w_data;
+        pfv_cr4_r_stb  <= pfv.cr(4).r_stb;
+        pfv_cr4_r_data <= pfv.cr(4).r_data;
+        pfv_cr4_w_stb  <= pfv.cr(4).w_stb;
+        pfv_cr4_w_data <= pfv.cr(4).w_data;
+        pfv_cr5_r_stb  <= pfv.cr(5).r_stb;
+        pfv_cr5_r_data <= pfv.cr(5).r_data;
+        pfv_cr5_w_stb  <= pfv.cr(5).w_stb;
+        pfv_cr5_w_data <= pfv.cr(5).w_data;
+        pfv_cr6_r_stb  <= pfv.cr(6).r_stb;
+        pfv_cr6_r_data <= pfv.cr(6).r_data;
+        pfv_cr6_w_stb  <= pfv.cr(6).w_stb;
+        pfv_cr6_w_data <= pfv.cr(6).w_data;
+        pfv_cr7_r_stb  <= pfv.cr(7).r_stb;
+        pfv_cr7_r_data <= pfv.cr(7).r_data;
+        pfv_cr7_w_stb  <= pfv.cr(7).w_stb;
+        pfv_cr7_w_data <= pfv.cr(7).w_data;
 
 end architecture behave;

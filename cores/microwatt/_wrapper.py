@@ -121,45 +121,10 @@ class MicrowattWrapper(Elaboratable):
             ("o", "pfv_rt_w_stb",   self.pfv.rt.w_stb),
             ("o", "pfv_rt_w_data",  self.pfv.rt.w_data),
 
-            ("o", "pfv_cr0_r_stb",  self.pfv.cr0.r_stb),
-            ("o", "pfv_cr0_r_data", self.pfv.cr0.r_data),
-            ("o", "pfv_cr0_w_stb",  self.pfv.cr0.w_stb),
-            ("o", "pfv_cr0_w_data", self.pfv.cr0.w_data),
-
-            ("o", "pfv_cr1_r_stb",  self.pfv.cr1.r_stb),
-            ("o", "pfv_cr1_r_data", self.pfv.cr1.r_data),
-            ("o", "pfv_cr1_w_stb",  self.pfv.cr1.w_stb),
-            ("o", "pfv_cr1_w_data", self.pfv.cr1.w_data),
-
-            ("o", "pfv_cr2_r_stb",  self.pfv.cr2.r_stb),
-            ("o", "pfv_cr2_r_data", self.pfv.cr2.r_data),
-            ("o", "pfv_cr2_w_stb",  self.pfv.cr2.w_stb),
-            ("o", "pfv_cr2_w_data", self.pfv.cr2.w_data),
-
-            ("o", "pfv_cr3_r_stb",  self.pfv.cr3.r_stb),
-            ("o", "pfv_cr3_r_data", self.pfv.cr3.r_data),
-            ("o", "pfv_cr3_w_stb",  self.pfv.cr3.w_stb),
-            ("o", "pfv_cr3_w_data", self.pfv.cr3.w_data),
-
-            ("o", "pfv_cr4_r_stb",  self.pfv.cr4.r_stb),
-            ("o", "pfv_cr4_r_data", self.pfv.cr4.r_data),
-            ("o", "pfv_cr4_w_stb",  self.pfv.cr4.w_stb),
-            ("o", "pfv_cr4_w_data", self.pfv.cr4.w_data),
-
-            ("o", "pfv_cr5_r_stb",  self.pfv.cr5.r_stb),
-            ("o", "pfv_cr5_r_data", self.pfv.cr5.r_data),
-            ("o", "pfv_cr5_w_stb",  self.pfv.cr5.w_stb),
-            ("o", "pfv_cr5_w_data", self.pfv.cr5.w_data),
-
-            ("o", "pfv_cr6_r_stb",  self.pfv.cr6.r_stb),
-            ("o", "pfv_cr6_r_data", self.pfv.cr6.r_data),
-            ("o", "pfv_cr6_w_stb",  self.pfv.cr6.w_stb),
-            ("o", "pfv_cr6_w_data", self.pfv.cr6.w_data),
-
-            ("o", "pfv_cr7_r_stb",  self.pfv.cr7.r_stb),
-            ("o", "pfv_cr7_r_data", self.pfv.cr7.r_data),
-            ("o", "pfv_cr7_w_stb",  self.pfv.cr7.w_stb),
-            ("o", "pfv_cr7_w_data", self.pfv.cr7.w_data),
+            ("o", "pfv_cr_r_stb",  self.pfv.cr.r_stb),
+            ("o", "pfv_cr_r_data", self.pfv.cr.r_data),
+            ("o", "pfv_cr_w_stb",  self.pfv.cr.w_stb),
+            ("o", "pfv_cr_w_data", self.pfv.cr.w_data),
 
             ("o", "pfv_lr_r_stb",   self.pfv.lr.r_stb),
             ("o", "pfv_lr_r_data",  self.pfv.lr.r_data),

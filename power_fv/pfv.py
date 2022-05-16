@@ -58,12 +58,12 @@ class Interface(Record):
         # CR
 
         layout += [
-            (f"cr{i}", [
-                ("r_stb",  1),
-                ("r_data", 4),
-                ("w_stb",  1),
-                ("w_data", 4),
-            ]) for i in range(8)
+            ("cr", [
+                ("r_stb",   8),
+                ("r_data", 32),
+                ("w_stb",   8),
+                ("w_data", 32),
+            ]),
         ]
 
         # SPRs

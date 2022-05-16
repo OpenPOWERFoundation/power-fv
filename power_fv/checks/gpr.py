@@ -4,10 +4,10 @@ from amaranth.asserts import *
 from .. import pfv
 
 
-__all__ = ["GPRCheck"]
+__all__ = ["Check"]
 
 
-class GPRCheck(Elaboratable):
+class Check(Elaboratable):
     """General Purpose Registers check.
 
     Checks that reads from GPRs are consistent with the last value that was written to them.
@@ -15,9 +15,11 @@ class GPRCheck(Elaboratable):
     with update) do not target the same register.
     """
     def __init__(self):
-        self.pre  = Signal()
-        self.post = Signal()
         self.pfv  = pfv.Interface()
+        self.trig = Record([
+            ("pre",  1),
+            ("post", 1),
+        ])
 
     def elaborate(self, platform):
         m = Module()
@@ -55,19 +57,19 @@ class GPRCheck(Elaboratable):
                 with m.Else():
                     m.d.sync += gpr_shadow.eq(self.pfv.rt.w_data)
 
-        with m.If(self.post):
+        with m.If(self.trig.post):
             m.d.sync += [
                 Assume(Past(self.pfv.stb)),
                 Assume(Past(self.pfv.order) == spec_order),
                 Assert(gpr_written.implies(~gpr_conflict)),
             ]
-            with m.If(Past(gpr_ra_read)):
+            with m.If(gpr_written & Past(gpr_ra_read)):
                 m.d.sync += Assert(Past(gpr_shadow) == Past(self.pfv.ra.r_data))
-            with m.If(Past(gpr_rb_read)):
+            with m.If(gpr_written & Past(gpr_rb_read)):
                 m.d.sync += Assert(Past(gpr_shadow) == Past(self.pfv.rb.r_data))
-            with m.If(Past(gpr_rs_read)):
+            with m.If(gpr_written & Past(gpr_rs_read)):
                 m.d.sync += Assert(Past(gpr_shadow) == Past(self.pfv.rs.r_data))
-            with m.If(Past(gpr_rt_read)):
+            with m.If(gpr_written & Past(gpr_rt_read)):
                 m.d.sync += Assert(Past(gpr_shadow) == Past(self.pfv.rt.r_data))
 
         return m

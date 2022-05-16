@@ -42,9 +42,9 @@ class Testbench(Elaboratable):
         m.submodules.dut   = self.dut
 
         m.d.comb += [
-            self.check.pre .eq(timer == self.t_pre),
-            self.check.post.eq(timer == self.t_post),
-            self.check.pfv .eq(self.dut.pfv),
+            self.check.pfv.eq(self.dut.pfv),
+            self.check.trig.pre .eq(timer == self.t_pre),
+            self.check.trig.post.eq(timer == self.t_post),
         ]
 
         m.d.comb += Assume(ResetSignal() == Initial())

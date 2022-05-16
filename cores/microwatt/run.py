@@ -1,43 +1,18 @@
 import argparse
+import importlib
 import os
+import multiprocessing
 
 from amaranth import *
-from amaranth.asserts import *
 
-from power_fv import pfv
-from power_fv.checks import *
 from power_fv.tb import Testbench
 from power_fv.build import SymbiYosysPlatform
 
 from _wrapper import MicrowattWrapper
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("check", help="check", type=str, choices=("unique", "ia_fwd", "gpr", "cr", "spr"))
-    parser.add_argument("--mode", help="mode", type=str, choices=("cover", "bmc"), default="bmc")
-    parser.add_argument("--pre",  help="pre-condition step, in clock cycles (default: 15)",  type=int, default=15)
-    parser.add_argument("--post", help="post-condition step, in clock cycles (default: 15)", type=int, default=15)
-
-    args = parser.parse_args()
-
-    check = None
-    if args.check == "unique":
-        check = UniquenessCheck() if args.mode == "bmc" else UniquenessCover()
-    if args.check == "ia_fwd":
-        check = IAForwardCheck() if args.mode == "bmc" else IAForwardCover()
-    if args.check == "gpr":
-        check = GPRCheck()
-    if args.check == "cr":
-        check = CRCheck()
-    if args.check == "spr":
-        check = SPRCheck() if args.mode == "bmc" else SPRCover()
-
-    cpu       = MicrowattWrapper()
-    testbench = Testbench(check, cpu, t_pre=args.pre, t_post=args.post)
-    platform  = SymbiYosysPlatform()
-
-    microwatt_files = [
+def microwatt_files():
+    _filenames = (
         "cache_ram.vhdl",
         "common.vhdl",
         "control.vhdl",
@@ -64,28 +39,66 @@ if __name__ == "__main__":
         "nonrandom.vhdl",
         "plru.vhdl",
         "pmu.vhdl",
+        "powerfv_types.vhdl",
+        "powerfv.vhdl",
         "ppc_fx_insns.vhdl",
         "register_file.vhdl",
         "rotator.vhdl",
         "utils.vhdl",
         "wishbone_types.vhdl",
         "writeback.vhdl",
+    )
 
-        "powerfv_types.vhdl",
-        "powerfv.vhdl",
-    ]
+    for filename in _filenames:
+        contents = open(os.path.join(os.curdir, "microwatt", filename), "r").read()
+        yield filename, contents
 
-    for filename in microwatt_files:
-        file = open(os.path.join(os.curdir, "microwatt", filename), "r")
-        platform.add_file(filename, file.read())
+    top_filename = "microwatt_top.vhdl"
+    top_contents = open(os.path.join(os.curdir, top_filename), "r").read()
+    yield top_filename, top_contents
 
-    platform.add_file("microwatt_top.vhdl", open(os.path.join(os.curdir, "microwatt_top.vhdl"), "r"))
 
-    platform.build(testbench,
-        name      = f"{args.check}_{args.mode}_tb",
-        build_dir = f"build/{args.check}_{args.mode}",
-        mode      = args.mode,
+def run_check(module_name, pre, post):
+    module = importlib.import_module(f".{module_name}", package="power_fv.checks")
+    check  = module.Check()
+    cpu    = MicrowattWrapper()
+    top    = Testbench(check, cpu, t_pre=pre, t_post=post)
+
+    platform = SymbiYosysPlatform()
+    for filename, contents in microwatt_files():
+        platform.add_file(filename, contents)
+
+    top_name  = "{}_tb".format(module_name)
+    build_dir = "build/{}".format(top_name)
+
+    platform.build(
+        top       = top,
+        name      = top_name,
+        build_dir = build_dir,
+        mode      = "bmc",
         ghdl_opts = "--std=08",
-        # TODO: investigate why combinatorial loops appear with `prep -flatten -nordff`
         prep_opts = "-nordff",
     )
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-j", "--jobs",
+        help="Number of worker processes (default: os.cpu_count())",
+        type=int,
+        default=os.cpu_count(),
+    )
+
+    args = parser.parse_args()
+
+    checks = [
+        # name           pre   post
+        ("unique",       12,   15),
+        ("ia_fwd",       None, 15),
+        ("gpr",          None, 15),
+        ("cr",           None, 15),
+        ("spr",          None, 15),
+    ]
+
+    with multiprocessing.Pool(processes=args.jobs) as pool:
+        pool.starmap(run_check, checks)

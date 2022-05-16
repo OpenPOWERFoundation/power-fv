@@ -4,18 +4,20 @@ from amaranth.asserts import *
 from .. import pfv
 
 
-__all__ = ["CRCheck"]
+__all__ = ["Check"]
 
 
-class CRCheck(Elaboratable):
+class Check(Elaboratable):
     """Condition Register check.
 
     Checks that reads from CR fields are consistent with the last value that was written to them.
     """
     def __init__(self):
-        self.pre  = Signal()
-        self.post = Signal()
         self.pfv  = pfv.Interface()
+        self.trig = Record([
+            ("pre",  1),
+            ("post", 1),
+        ])
 
     def elaborate(self, platform):
         m = Module()
@@ -54,7 +56,7 @@ class CRCheck(Elaboratable):
                         cr_field.shadow .eq(cr_field.pfv.w_data),
                     ]
 
-        with m.If(self.post):
+        with m.If(self.trig.post):
             m.d.sync += [
                 Assume(Past(self.pfv.stb)),
                 Assume(Past(self.pfv.order) == spec_order),

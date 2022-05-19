@@ -5,5 +5,5 @@ from .. import insn
 __all__ = ["Check"]
 
 
-class Check(_branch.Check, insn_cls=insn.BCTRL):
+class Check(_branch.Check, insn_cls=insn.BCCTRL):
     pass

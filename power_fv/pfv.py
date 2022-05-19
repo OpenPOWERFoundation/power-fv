@@ -79,6 +79,9 @@ class Interface(Record):
                 "ctr",
                 "tar",
                 "xer",
+                "srr0",
+                "srr1",
+                "msr",
             )
         ]
 

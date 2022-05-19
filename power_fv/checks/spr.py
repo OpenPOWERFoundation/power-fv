@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from amaranth import *
 from amaranth.asserts import *
 
@@ -23,51 +25,37 @@ class Check(Elaboratable):
     def elaborate(self, platform):
         m = Module()
 
+        spr_map = OrderedDict()
+
+        for spr_name in ("lr", "ctr", "xer", "tar"):
+            spr = Record([
+                ("written",  1),
+                ("shadow",  64),
+            ], name=spr_name)
+            spr_map[spr_name] = spr
+
         spec_order = AnyConst(self.pfv.order.width)
 
-        lr_written  = Signal()
-        lr_shadow   = Signal(64)
-        ctr_written = Signal()
-        ctr_shadow  = Signal(64)
-        xer_written = Signal()
-        xer_shadow  = Signal(64)
-        tar_written = Signal()
-        tar_shadow  = Signal(64)
-
         with m.If(self.pfv.stb & (self.pfv.order <= spec_order)):
-            with m.If(self.pfv.lr.w_stb):
-                m.d.sync += [
-                    lr_written.eq(1),
-                    lr_shadow .eq(self.pfv.lr.w_data),
-                ]
-            with m.If(self.pfv.ctr.w_stb):
-                m.d.sync += [
-                    ctr_written.eq(1),
-                    ctr_shadow .eq(self.pfv.ctr.w_data),
-                ]
-            with m.If(self.pfv.xer.w_stb):
-                m.d.sync += [
-                    xer_written.eq(1),
-                    xer_shadow .eq(self.pfv.xer.w_data),
-                ]
-            with m.If(self.pfv.tar.w_stb):
-                m.d.sync += [
-                    tar_written.eq(1),
-                    tar_shadow .eq(self.pfv.tar.w_data),
-                ]
+            for spr_name, spr in spr_map.items():
+                pfv_spr = getattr(self.pfv, spr_name)
+
+                with m.If(pfv_spr.w_stb):
+                    m.d.sync += [
+                        spr.written.eq(1),
+                        spr.shadow .eq(pfv_spr.w_data),
+                    ]
 
         with m.If(self.trig.post):
             m.d.sync += [
                 Assume(Past(self.pfv.stb)),
                 Assume(Past(self.pfv.order) == spec_order),
             ]
-            with m.If(lr_written & Past(self.pfv.lr.r_stb)):
-                m.d.sync += Assert(Past(lr_shadow) == Past(self.pfv.lr.r_data))
-            with m.If(ctr_written & Past(self.pfv.ctr.r_stb)):
-                m.d.sync += Assert(Past(ctr_shadow) == Past(self.pfv.ctr.r_data))
-            with m.If(xer_written & Past(self.pfv.xer.r_stb)):
-                m.d.sync += Assert(Past(xer_shadow) == Past(self.pfv.xer.r_data))
-            with m.If(tar_written & Past(self.pfv.tar.r_stb)):
-                m.d.sync += Assert(Past(tar_shadow) == Past(self.pfv.tar.r_data))
+
+            for spr_name, spr in spr_map.items():
+                pfv_spr = getattr(self.pfv, spr_name)
+
+                with m.If(spr.written & Past(pfv_spr.r_stb)):
+                    m.d.sync += Assert(Past(spr.shadow) == Past(pfv_spr.r_data))
 
         return m

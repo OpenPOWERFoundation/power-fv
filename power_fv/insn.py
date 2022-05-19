@@ -55,8 +55,8 @@ class Instruction_XL_b(ValueCastable):
     lk = None
 
     def __init_subclass__(cls, *, po, xo, lk):
-        cls.po = Const(po, unsigned(6))
-        cls.xo = Const(xo, unsigned(9))
+        cls.po = Const(po, unsigned( 6))
+        cls.xo = Const(xo, unsigned(10))
         cls.lk = Const(1)
 
     def __init__(self):

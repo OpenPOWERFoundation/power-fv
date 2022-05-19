@@ -48,7 +48,7 @@ class Check(Elaboratable):
             ]
             cr_written_any |= cr_field.written
 
-        with m.If(self.pfv.stb & (self.pfv.order <= spec_order)):
+        with m.If(self.pfv.stb & ~self.pfv.intr & (self.pfv.order <= spec_order)):
             for cr_field in cr_map:
                 with m.If(cr_field.pfv.w_stb):
                     m.d.sync += [
@@ -62,8 +62,9 @@ class Check(Elaboratable):
                 Assume(Past(self.pfv.order) == spec_order),
                 Assume(cr_written_any),
             ]
-            for cr_field in cr_map:
-                with m.If(Past(cr_field.pfv.r_stb)):
-                    m.d.sync += Assert(Past(cr_field.pfv.r_data) == Past(cr_field.shadow))
+            with m.If(~Past(self.pfv.intr)):
+                for cr_field in cr_map:
+                    with m.If(Past(cr_field.pfv.r_stb)):
+                        m.d.sync += Assert(Past(cr_field.pfv.r_data) == Past(cr_field.shadow))
 
         return m

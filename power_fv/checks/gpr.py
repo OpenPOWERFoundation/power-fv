@@ -10,9 +10,10 @@ __all__ = ["Check"]
 class Check(Elaboratable):
     """General Purpose Registers check.
 
-    Checks that reads from GPRs are consistent with the last value that was written to them.
-    Also checks that simultaneous writes to multiple GPRs by the same instruction (e.g. a load
-    with update) do not target the same register.
+    Checks that:
+      * reads from a GPR are consistent with the last value that was written to it;
+      * writes to multiple GPRs by a single instruction (e.g. load with update) do not target the
+        same register.
     """
     def __init__(self):
         self.pfv  = pfv.Interface()
@@ -47,7 +48,7 @@ class Check(Elaboratable):
             gpr_rt_write.eq(self.pfv.rt.w_stb & (self.pfv.rt.index == spec_gpr_index)),
         ]
 
-        with m.If(self.pfv.stb & (self.pfv.order <= spec_order)):
+        with m.If(self.pfv.stb & ~self.pfv.intr & (self.pfv.order <= spec_order)):
             with m.If(gpr_ra_write & gpr_rt_write):
                 m.d.sync += gpr_conflict.eq(1)
             with m.If(gpr_ra_write | gpr_rt_write):
@@ -61,15 +62,16 @@ class Check(Elaboratable):
             m.d.sync += [
                 Assume(Past(self.pfv.stb)),
                 Assume(Past(self.pfv.order) == spec_order),
-                Assert(gpr_written.implies(~gpr_conflict)),
             ]
-            with m.If(gpr_written & Past(gpr_ra_read)):
-                m.d.sync += Assert(Past(gpr_shadow) == Past(self.pfv.ra.r_data))
-            with m.If(gpr_written & Past(gpr_rb_read)):
-                m.d.sync += Assert(Past(gpr_shadow) == Past(self.pfv.rb.r_data))
-            with m.If(gpr_written & Past(gpr_rs_read)):
-                m.d.sync += Assert(Past(gpr_shadow) == Past(self.pfv.rs.r_data))
-            with m.If(gpr_written & Past(gpr_rt_read)):
-                m.d.sync += Assert(Past(gpr_shadow) == Past(self.pfv.rt.r_data))
+            with m.If(~Past(self.pfv.intr)):
+                m.d.sync += Assert(gpr_written.implies(~gpr_conflict))
+                with m.If(gpr_written & Past(gpr_ra_read)):
+                    m.d.sync += Assert(Past(gpr_shadow) == Past(self.pfv.ra.r_data))
+                with m.If(gpr_written & Past(gpr_rb_read)):
+                    m.d.sync += Assert(Past(gpr_shadow) == Past(self.pfv.rb.r_data))
+                with m.If(gpr_written & Past(gpr_rs_read)):
+                    m.d.sync += Assert(Past(gpr_shadow) == Past(self.pfv.rs.r_data))
+                with m.If(gpr_written & Past(gpr_rt_read)):
+                    m.d.sync += Assert(Past(gpr_shadow) == Past(self.pfv.rt.r_data))
 
         return m

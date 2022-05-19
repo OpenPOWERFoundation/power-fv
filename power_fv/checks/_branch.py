@@ -3,6 +3,7 @@ from amaranth.asserts import *
 
 from .. import pfv
 from ..insn import *
+from ..utils import iea_mask
 
 
 __all__ = ["Check"]
@@ -24,46 +25,47 @@ class Check(Elaboratable):
     def elaborate(self, platform):
         m = Module()
 
-        # TODO:
-        # - support MSR (stop assuming 64-bit mode)
-        # - support interrupts (detect illegal forms)
-
         spec_insn = self._insn_cls()
 
         with m.If(self.trig.post):
             m.d.sync += [
                 Assume(self.pfv.stb),
                 Assume(self.pfv.insn[32:] == spec_insn),
+                Assert(self.pfv.msr.w_stb),
             ]
+
+        msr_w_sf = Signal()
+        m.d.comb += msr_w_sf.eq(self.pfv.msr.w_data[63])
 
         if isinstance(spec_insn, (Instruction_B, Instruction_XL_b)):
             bo_valid_patterns = [
-                "0000-",
-                "0001-",
                 "001--",
-                "0100-",
-                "0101-",
                 "011--",
-                "1-00-",
-                "1-01-"
+                "1-1--",
             ]
-            if not isinstance(spec_insn, Instruction_B):
-                # "Branch always" mnemonics are undefined for B-form conditional branches.
-                # (Appendix C.2.2, Book I)
-                bo_valid_patterns.append("1-1--")
+            if not isinstance(spec_insn, (BCCTR, BCCTRL)):
+                # bcctr/bcctrl forms with BO(2)=0 ("decrement and test CTR") are illegal.
+                bo_valid_patterns += [
+                    "0000-",
+                    "0001-",
+                    "0100-",
+                    "0101-",
+                    "1-00-",
+                    "1-01-",
+                ]
 
-            bo_valid = Signal()
-            m.d.comb += bo_valid.eq(spec_insn.bo.matches(*bo_valid_patterns))
+            bo_invalid = Signal()
+            m.d.comb += bo_invalid.eq(~spec_insn.bo.matches(*bo_valid_patterns))
 
-            # FIXME(microwatt,interrupts): turn this into an assert
             with m.If(self.trig.post):
-                m.d.sync += Assume(bo_valid | self.pfv.intr)
+                m.d.sync += Assert(bo_invalid.implies(self.pfv.intr))
 
         # NIA
 
         spec_nia = Signal(unsigned(64))
         taken    = Signal()
         offset   = Signal(signed(62))
+        target   = Signal(signed(64))
 
         if isinstance(spec_insn, Instruction_I):
             m.d.comb += [
@@ -79,24 +81,25 @@ class Check(Elaboratable):
 
             m.d.comb += [
                 cond_bit.eq(self.pfv.cr.r_data[::-1].bit_select(spec_insn.bi, width=1)),
-                ctr_any .eq(self.pfv.ctr.w_data.any()),
-                cond_ok .eq(spec_insn.bo[4] | (spec_insn.bo[3] == cond_bit)),
-                ctr_ok  .eq(spec_insn.bo[2] | (ctr_any ^ spec_insn.bo[1])),
+                ctr_any .eq( self.pfv.ctr.w_data[:32].any() |
+                            (self.pfv.ctr.w_data[32:].any() & msr_w_sf)),
+                cond_ok .eq(spec_insn.bo[4-0] | (spec_insn.bo[4-1] == cond_bit)),
+                ctr_ok  .eq(spec_insn.bo[4-2] | (ctr_any ^ spec_insn.bo[4-3])),
             ]
 
-            if isinstance(spec_insn, Instruction_XL_b) and spec_insn.xo.value == 528: # bcctr/bcctrl
+            if isinstance(spec_insn, (BCCTR, BCCTRL)):
                 m.d.comb += taken.eq(cond_ok)
             else:
                 m.d.comb += taken.eq(cond_ok & ctr_ok)
 
             if isinstance(spec_insn, Instruction_B):
                 m.d.comb += offset.eq(spec_insn.bd)
-            elif spec_insn.xo.value ==  16: # bclr/bclrl
-                m.d.comb += offset.eq(self.pfv.lr .r_data[:61])
-            elif spec_insn.xo.value == 528: # bcctr/bcctrl
-                m.d.comb += offset.eq(self.pfv.ctr.r_data[:61])
-            elif spec_insn.xo.value == 560: # bctar/bctarl
-                m.d.comb += offset.eq(self.pfv.tar.r_data[:61])
+            elif isinstance(spec_insn, (BCLR, BCLRL)):
+                m.d.comb += offset.eq(self.pfv.lr .r_data[2:])
+            elif isinstance(spec_insn, (BCCTR, BCCTRL)):
+                m.d.comb += offset.eq(self.pfv.ctr.r_data[2:])
+            elif isinstance(spec_insn, (BCTAR, BCTARL)):
+                m.d.comb += offset.eq(self.pfv.tar.r_data[2:])
             else:
                 assert False
 
@@ -105,11 +108,13 @@ class Check(Elaboratable):
 
         with m.If(taken):
             if isinstance(spec_insn, (Instruction_I, Instruction_B)) and spec_insn.aa.value == 0:
-                m.d.comb += spec_nia.eq(self.pfv.cia + (offset << 2))
+                m.d.comb += target.eq(self.pfv.cia + (offset << 2))
             else:
-                m.d.comb += spec_nia.eq(offset << 2)
+                m.d.comb += target.eq(offset << 2)
         with m.Else():
-            m.d.comb += spec_nia.eq(self.pfv.cia + 4)
+            m.d.comb += target.eq(self.pfv.cia + 4)
+
+        m.d.comb += spec_nia.eq(iea_mask(target, msr_w_sf))
 
         with m.If(self.trig.post & ~self.pfv.intr):
             m.d.sync += Assert(self.pfv.nia == spec_nia)
@@ -139,13 +144,19 @@ class Check(Elaboratable):
         if isinstance(spec_insn, (Instruction_I, Instruction_B)):
             m.d.comb += spec_lr_r_stb.eq(0)
         elif isinstance(spec_insn, (Instruction_XL_b)):
-            m.d.comb += spec_lr_r_stb.eq(spec_insn.xo == 16) # bclr/bclrl
+            if isinstance(spec_insn, (BCLR, BCLRL)):
+                m.d.comb += spec_lr_r_stb.eq(1)
+            else:
+                m.d.comb += spec_lr_r_stb.eq(0)
         else:
             assert False
 
+        cia_4 = Signal(unsigned(64))
+        m.d.comb += cia_4.eq(self.pfv.cia + 4)
+
         m.d.comb += [
             spec_lr_w_stb .eq(spec_insn.lk),
-            spec_lr_w_data.eq(self.pfv.cia + 4),
+            spec_lr_w_data.eq(iea_mask(cia_4, msr_w_sf)),
         ]
 
         with m.If(self.trig.post & ~self.pfv.intr):
@@ -164,21 +175,24 @@ class Check(Elaboratable):
         if isinstance(spec_insn, Instruction_I):
             m.d.comb += spec_ctr_r_stb.eq(0)
         elif isinstance(spec_insn, Instruction_B):
-            m.d.comb += spec_ctr_r_stb.eq(~spec_insn.bo[2])
-        elif isinstance(spec_insn, (Instruction_B, Instruction_XL_b)):
-            m.d.comb += spec_ctr_r_stb.eq(1)
+            m.d.comb += spec_ctr_r_stb.eq(~spec_insn.bo[4-2])
+        elif isinstance(spec_insn, Instruction_XL_b):
+            if isinstance(spec_insn, (BCCTR, BCCTRL)):
+                m.d.comb += spec_ctr_r_stb.eq(1)
+            else:
+                m.d.comb += spec_ctr_r_stb.eq(~spec_insn.bo[4-2])
         else:
             assert False
 
         if isinstance(spec_insn, Instruction_I):
             m.d.comb += spec_ctr_w_stb.eq(0)
         elif isinstance(spec_insn, Instruction_B):
-            m.d.comb += spec_ctr_w_stb.eq(~spec_insn.bo[2])
+            m.d.comb += spec_ctr_w_stb.eq(~spec_insn.bo[4-2])
         elif isinstance(spec_insn, Instruction_XL_b):
-            if spec_insn.xo.value == 528: # bcctr/bcctrl
+            if isinstance(spec_insn, (BCCTR, BCCTRL)):
                 m.d.comb += spec_ctr_w_stb.eq(0)
             else:
-                m.d.comb += spec_ctr_w_stb.eq(~spec_insn.bo[2])
+                m.d.comb += spec_ctr_w_stb.eq(~spec_insn.bo[4-2])
         else:
             assert False
 
@@ -198,7 +212,10 @@ class Check(Elaboratable):
         if isinstance(spec_insn, (Instruction_I, Instruction_B)):
             m.d.comb += spec_tar_r_stb.eq(0)
         elif isinstance(spec_insn, (Instruction_XL_b)):
-            m.d.comb += spec_tar_r_stb.eq(spec_insn.xo == 560) # bctar/bctarl
+            if isinstance(spec_insn, (BCTAR, BCTARL)):
+                m.d.comb += spec_tar_r_stb.eq(1)
+            else:
+                m.d.comb += spec_tar_r_stb.eq(0)
         else:
             assert False
 

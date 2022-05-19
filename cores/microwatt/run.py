@@ -105,16 +105,15 @@ if __name__ == "__main__":
         ("insn_bla",     None, 15),
         ("insn_bc",      None, 15),
         ("insn_bca",     None, 15),
+        ("insn_bcl",     None, 15),
         ("insn_bcla",    None, 15),
 
-        # TODO:
-        #("insn_bcl",    None, 15),
-        #("insn_bclr",   None, 15),
-        #("insn_bclrl",  None, 15),
-        #("insn_bcctr",  None, 15),
-        #("insn_bcctrl", None, 15),
-        #("insn_bctar",  None, 15),
-        #("insn_bctarl", None, 15),
+        ("insn_bclr",    None, 15),
+        ("insn_bclrl",   None, 15),
+        ("insn_bcctr",   None, 15),
+        ("insn_bcctrl",  None, 15),
+        ("insn_bctar",   None, 15),
+        ("insn_bctarl",  None, 15),
     ]
 
     with multiprocessing.Pool(processes=args.jobs) as pool:

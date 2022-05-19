@@ -145,6 +145,21 @@ class MicrowattWrapper(Elaboratable):
             ("o", "pfv_tar_r_data", self.pfv.tar.r_data),
             ("o", "pfv_tar_w_stb",  self.pfv.tar.w_stb),
             ("o", "pfv_tar_w_data", self.pfv.tar.w_data),
+
+            ("o", "pfv_srr0_r_stb",  self.pfv.srr0.r_stb),
+            ("o", "pfv_srr0_r_data", self.pfv.srr0.r_data),
+            ("o", "pfv_srr0_w_stb",  self.pfv.srr0.w_stb),
+            ("o", "pfv_srr0_w_data", self.pfv.srr0.w_data),
+
+            ("o", "pfv_srr1_r_stb",  self.pfv.srr1.r_stb),
+            ("o", "pfv_srr1_r_data", self.pfv.srr1.r_data),
+            ("o", "pfv_srr1_w_stb",  self.pfv.srr1.w_stb),
+            ("o", "pfv_srr1_w_data", self.pfv.srr1.w_data),
+
+            ("o", "pfv_msr_r_stb",  self.pfv.msr.r_stb),
+            ("o", "pfv_msr_r_data", self.pfv.msr.r_data),
+            ("o", "pfv_msr_w_stb",  self.pfv.msr.w_stb),
+            ("o", "pfv_msr_w_data", self.pfv.msr.w_data),
         )
 
         with m.If(Initial()):

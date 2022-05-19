@@ -82,7 +82,22 @@ entity toplevel is
         pfv_tar_r_stb  : out std_ulogic;
         pfv_tar_r_data : out std_ulogic_vector(63 downto 0);
         pfv_tar_w_stb  : out std_ulogic;
-        pfv_tar_w_data : out std_ulogic_vector(63 downto 0)
+        pfv_tar_w_data : out std_ulogic_vector(63 downto 0);
+
+        pfv_srr0_r_stb  : out std_ulogic;
+        pfv_srr0_r_data : out std_ulogic_vector(63 downto 0);
+        pfv_srr0_w_stb  : out std_ulogic;
+        pfv_srr0_w_data : out std_ulogic_vector(63 downto 0);
+
+        pfv_srr1_r_stb  : out std_ulogic;
+        pfv_srr1_r_data : out std_ulogic_vector(63 downto 0);
+        pfv_srr1_w_stb  : out std_ulogic;
+        pfv_srr1_w_data : out std_ulogic_vector(63 downto 0);
+
+        pfv_msr_r_stb  : out std_ulogic;
+        pfv_msr_r_data : out std_ulogic_vector(63 downto 0);
+        pfv_msr_w_stb  : out std_ulogic;
+        pfv_msr_w_data : out std_ulogic_vector(63 downto 0)
         );
 end entity toplevel;
 
@@ -175,5 +190,20 @@ begin
         pfv_tar_r_data <= pfv.tar.r_data;
         pfv_tar_w_stb  <= pfv.tar.w_stb;
         pfv_tar_w_data <= pfv.tar.w_data;
+
+        pfv_srr0_r_stb  <= pfv.srr0.r_stb;
+        pfv_srr0_r_data <= pfv.srr0.r_data;
+        pfv_srr0_w_stb  <= pfv.srr0.w_stb;
+        pfv_srr0_w_data <= pfv.srr0.w_data;
+
+        pfv_srr1_r_stb  <= pfv.srr1.r_stb;
+        pfv_srr1_r_data <= pfv.srr1.r_data;
+        pfv_srr1_w_stb  <= pfv.srr1.w_stb;
+        pfv_srr1_w_data <= pfv.srr1.w_data;
+
+        pfv_msr_r_stb  <= pfv.msr.r_stb;
+        pfv_msr_r_data <= pfv.msr.r_data;
+        pfv_msr_w_stb  <= pfv.msr.w_stb;
+        pfv_msr_w_data <= pfv.msr.w_data;
 
 end architecture behave;

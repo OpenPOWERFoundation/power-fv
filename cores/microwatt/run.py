@@ -1,11 +1,11 @@
 import argparse
-import importlib
 import os
 import multiprocessing
 
 from amaranth import *
 
-from power_fv.tb import Testbench
+from power_fv.checks import *
+from power_fv.checks.all import *
 from power_fv.build import SymbiYosysPlatform
 
 from _wrapper import MicrowattWrapper
@@ -58,22 +58,23 @@ def microwatt_files():
     yield top_filename, top_contents
 
 
-def run_check(module_name, pre, post):
-    module = importlib.import_module(f".{module_name}", package="power_fv.checks")
-    check  = module.Check()
-    cpu    = MicrowattWrapper()
-    top    = Testbench(check, cpu, t_pre=pre, t_post=post)
+def run_check(*args):
+    check_name, tb_args = args
+
+    check = PowerFVCheck.registry[check_name]()
+    dut   = MicrowattWrapper()
+    tb    = check.get_testbench(dut, **tb_args)
 
     platform = SymbiYosysPlatform()
     for filename, contents in microwatt_files():
         platform.add_file(filename, contents)
 
-    top_name  = "{}_tb".format(module_name)
-    build_dir = "build/{}".format(top_name)
+    tb_name   = "{}_tb".format(check_name)
+    build_dir = "build/{}".format(tb_name)
 
     platform.build(
-        top       = top,
-        name      = top_name,
+        top       = tb,
+        name      = tb_name,
         build_dir = build_dir,
         mode      = "bmc",
         ghdl_opts = "--std=08",
@@ -92,28 +93,26 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     checks = [
-        # name           pre   post
-        ("unique",       12,   15),
-        ("ia_fwd",       None, 15),
-        ("gpr",          None, 15),
-        ("cr",           None, 15),
-        ("spr",          None, 15),
+        ("cons_unique",  {"post": 15, "pre": 12}),
+        ("cons_ia_fwd",  {"post": 15}),
+        ("cons_gpr",     {"post": 15}),
+        ("cons_cr",      {"post": 15}),
+        ("cons_spr",     {"post": 15}),
 
-        ("insn_b",       None, 15),
-        ("insn_ba",      None, 15),
-        ("insn_bl",      None, 15),
-        ("insn_bla",     None, 15),
-        ("insn_bc",      None, 15),
-        ("insn_bca",     None, 15),
-        ("insn_bcl",     None, 15),
-        ("insn_bcla",    None, 15),
-
-        ("insn_bclr",    None, 15),
-        ("insn_bclrl",   None, 15),
-        ("insn_bcctr",   None, 15),
-        ("insn_bcctrl",  None, 15),
-        ("insn_bctar",   None, 15),
-        ("insn_bctarl",  None, 15),
+        ("insn_b",       {"post": 15}),
+        ("insn_ba",      {"post": 15}),
+        ("insn_bl",      {"post": 15}),
+        ("insn_bla",     {"post": 15}),
+        ("insn_bc",      {"post": 15}),
+        ("insn_bca",     {"post": 15}),
+        ("insn_bcl",     {"post": 15}),
+        ("insn_bcla",    {"post": 15}),
+        ("insn_bclr",    {"post": 15}),
+        ("insn_bclrl",   {"post": 15}),
+        ("insn_bcctr",   {"post": 15}),
+        ("insn_bcctrl",  {"post": 15}),
+        ("insn_bctar",   {"post": 15}),
+        ("insn_bctarl",  {"post": 15}),
     ]
 
     with multiprocessing.Pool(processes=args.jobs) as pool:

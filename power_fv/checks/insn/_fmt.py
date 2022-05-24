@@ -3,6 +3,9 @@ from amaranth.asserts import AnyConst
 from amaranth.hdl.ast import ValueCastable
 
 
+__all__ = ["Instruction_I", "Instruction_B", "Instruction_XL_bc"]
+
+
 class Instruction_I(ValueCastable):
     po = None
     li = None
@@ -45,7 +48,7 @@ class Instruction_B(ValueCastable):
         return Cat(self.lk, self.aa, self.bd, self.bi, self.bo, self.po)
 
 
-class Instruction_XL_b(ValueCastable):
+class Instruction_XL_bc(ValueCastable):
     po = None
     bo = None
     bi = None
@@ -68,21 +71,3 @@ class Instruction_XL_b(ValueCastable):
     @ValueCastable.lowermethod
     def as_value(self):
         return Cat(self.lk, self.xo, self.bh, self._0, self.bi, self.bo, self.po)
-
-
-class B      (Instruction_I, po=18, aa=0, lk=0): pass
-class BA     (Instruction_I, po=18, aa=1, lk=0): pass
-class BL     (Instruction_I, po=18, aa=0, lk=1): pass
-class BLA    (Instruction_I, po=18, aa=1, lk=1): pass
-
-class BC     (Instruction_B, po=16, aa=0, lk=0): pass
-class BCA    (Instruction_B, po=16, aa=1, lk=0): pass
-class BCL    (Instruction_B, po=16, aa=0, lk=1): pass
-class BCLA   (Instruction_B, po=16, aa=1, lk=1): pass
-
-class BCLR   (Instruction_XL_b, po=19, xo= 16, lk=0): pass
-class BCLRL  (Instruction_XL_b, po=19, xo= 16, lk=1): pass
-class BCCTR  (Instruction_XL_b, po=19, xo=528, lk=0): pass
-class BCCTRL (Instruction_XL_b, po=19, xo=528, lk=1): pass
-class BCTAR  (Instruction_XL_b, po=19, xo=560, lk=0): pass
-class BCTARL (Instruction_XL_b, po=19, xo=560, lk=1): pass

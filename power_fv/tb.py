@@ -1,51 +1,78 @@
+from collections import OrderedDict
+
 from amaranth import *
 from amaranth.asserts import *
+from amaranth.utils import bits_for
 
 
-__all__ = ["Testbench"]
+__all__ = ["Trigger", "Testbench"]
 
 
-def _check_triggers(t_start, t_pre, t_post):
-    if not isinstance(t_start, int) or t_start <= 0:
-        raise ValueError("t_start must be a positive integer, not {!r}"
-                         .format(t_start))
-    if not isinstance(t_post, int) or t_post < t_start:
-        raise ValueError("t_post must be an integer greater than or equal to t_start ({}), not {!r}"
-                         .format(t_start, t_post))
-    if not isinstance(t_pre, int) or t_pre > t_post or t_pre < t_start:
-        raise ValueError("t_pre must be an integer between t_start and t_post (i.e. [{},{}]), "
-                         "not {!r}".format(t_start, t_post, t_pre))
+class Trigger:
+    def __init__(self, cycle, name=None, src_loc_at=0):
+        if not isinstance(cycle, int) or cycle < 0:
+            raise ValueError("Clock cycle must be a non-negative integer, not {!r}"
+                             .format(cycle))
+
+        self.stb   = Signal(name=name, src_loc_at=1 + src_loc_at)
+        self.cycle = cycle
 
 
 class Testbench(Elaboratable):
-    def __init__(self, check, dut, *, t_start=1, t_pre=None, t_post=20):
-        if t_pre is None and t_post is not None:
-            t_pre = t_post
+    def __init__(self, spec, dut, start=0):
+        self.spec  = spec
+        self.dut   = dut
+        self.start = Trigger(cycle=start)
 
-        _check_triggers(t_start, t_pre, t_post)
+        self._triggers  = OrderedDict()
+        self._bmc_depth = None
+        self._frozen    = False
 
-        self.check   = check
-        self.dut     = dut
-        self.t_start = t_start
-        self.t_pre   = t_pre
-        self.t_post  = t_post
+        self.add_trigger(self.start)
+        for trigger in spec.triggers():
+            self.add_trigger(trigger)
+
+    def freeze(self):
+        if not self._frozen:
+            self._bmc_depth = max(t.cycle for t in self.triggers()) + 1
+            self._frozen    = True
+
+    def add_trigger(self, trigger):
+        if self._frozen:
+            raise ValueError("Testbench is frozen.")
+        if not isinstance(trigger, Trigger):
+            raise TypeError("Trigger must be an instance of Trigger, not {!r}"
+                            .format(trig))
+        self._triggers[id(trigger)] = trigger
+
+    def triggers(self):
+        yield from self._triggers.values()
+
+    @property
+    def bmc_depth(self):
+        self.freeze()
+        return self._bmc_depth
 
     def elaborate(self, platform):
         m = Module()
 
-        timer = Signal(range(self.t_post + 2), reset=1)
+        cycle = Signal(range(self.bmc_depth), reset=0)
 
-        with m.If(timer <= self.t_post):
-            m.d.sync += timer.eq(timer + 1)
+        with m.If(cycle < self.bmc_depth):
+            m.d.sync += cycle.eq(cycle + 1)
 
-        m.submodules.check = ResetInserter(timer < self.t_start)(self.check)
-        m.submodules.dut   = self.dut
+        for trigger in self.triggers():
+            m.d.comb += trigger.stb.eq(cycle == trigger.cycle)
 
-        m.d.comb += [
-            self.check.pfv.eq(self.dut.pfv),
-            self.check.trig.pre .eq(timer == self.t_pre),
-            self.check.trig.post.eq(timer == self.t_post),
-        ]
+        spec_rst = Signal(reset=1)
+
+        with m.If(self.start.stb):
+            m.d.sync += spec_rst.eq(0)
+
+        m.submodules.spec = ResetInserter(spec_rst)(self.spec)
+        m.submodules.dut  = self.dut
+
+        m.d.comb += self.spec.pfv.eq(self.dut.pfv)
 
         m.d.comb += Assume(ResetSignal() == Initial())
 

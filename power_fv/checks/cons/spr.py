@@ -3,24 +3,25 @@ from collections import OrderedDict
 from amaranth import *
 from amaranth.asserts import *
 
-from .. import pfv
+from .. import PowerFVCheck
+from ... import pfv, tb
 
 
-__all__ = ["Check"]
+__all__ = ["SPRSpec", "SPRCheck"]
 
 
-class Check(Elaboratable):
-    """Special Purpose Registers check.
+class SPRSpec(Elaboratable):
+    """SPR consistency specification.
 
-    Checks that reads from supported SPRs are consistent with the last value that was written to
+    Checks that reads from supported SPRs are the last value that was written to
     them.
     """
-    def __init__(self):
+    def __init__(self, post):
         self.pfv  = pfv.Interface()
-        self.trig = Record([
-            ("pre",  1),
-            ("post", 1),
-        ])
+        self.post = tb.Trigger(cycle=post)
+
+    def triggers(self):
+        yield self.post
 
     def elaborate(self, platform):
         m = Module()
@@ -46,7 +47,7 @@ class Check(Elaboratable):
                         spr.shadow .eq(pfv_spr.w_data),
                     ]
 
-        with m.If(self.trig.post):
+        with m.If(self.post.stb):
             m.d.sync += [
                 Assume(Past(self.pfv.stb)),
                 Assume(Past(self.pfv.order) == spec_order),
@@ -59,3 +60,10 @@ class Check(Elaboratable):
                     m.d.sync += Assert(Past(spr.shadow) == Past(pfv_spr.r_data))
 
         return m
+
+
+class SPRCheck(PowerFVCheck, name="cons_spr"):
+    def get_testbench(self, dut, post):
+        tb_spec = SPRSpec(post)
+        tb_top  = tb.Testbench(tb_spec, dut)
+        return tb_top

@@ -1,23 +1,24 @@
 from amaranth import *
 from amaranth.asserts import *
 
-from .. import pfv
+from .. import PowerFVCheck
+from ... import pfv, tb
 
 
-__all__ = ["Check"]
+__all__ = ["CRSpec", "CRCheck"]
 
 
-class Check(Elaboratable):
-    """Condition Register check.
+class CRSpec(Elaboratable):
+    """Condition Register consistency specification.
 
-    Checks that reads from CR fields are consistent with the last value that was written to them.
+    Checks that reads from CR fields return the last value that was written to them.
     """
-    def __init__(self):
+    def __init__(self, post):
         self.pfv  = pfv.Interface()
-        self.trig = Record([
-            ("pre",  1),
-            ("post", 1),
-        ])
+        self.post = tb.Trigger(cycle=post)
+
+    def triggers(self):
+        yield self.post
 
     def elaborate(self, platform):
         m = Module()
@@ -56,7 +57,7 @@ class Check(Elaboratable):
                         cr_field.shadow .eq(cr_field.pfv.w_data),
                     ]
 
-        with m.If(self.trig.post):
+        with m.If(self.post.stb):
             m.d.sync += [
                 Assume(Past(self.pfv.stb)),
                 Assume(Past(self.pfv.order) == spec_order),
@@ -68,3 +69,10 @@ class Check(Elaboratable):
                         m.d.sync += Assert(Past(cr_field.pfv.r_data) == Past(cr_field.shadow))
 
         return m
+
+
+class CRCheck(PowerFVCheck, name="cons_cr"):
+    def get_testbench(self, dut, post):
+        tb_spec = CRSpec(post)
+        tb_top  = tb.Testbench(tb_spec, dut)
+        return tb_top

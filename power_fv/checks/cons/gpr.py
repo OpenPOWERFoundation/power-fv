@@ -1,26 +1,27 @@
 from amaranth import *
 from amaranth.asserts import *
 
-from .. import pfv
+from .. import PowerFVCheck
+from ... import pfv, tb
 
 
-__all__ = ["Check"]
+__all__ = ["GPRSpec", "GPRCheck"]
 
 
-class Check(Elaboratable):
-    """General Purpose Registers check.
+class GPRSpec(Elaboratable):
+    """GPR consistency specification.
 
     Checks that:
-      * reads from a GPR are consistent with the last value that was written to it;
+      * reads from a GPR return the last value that was written to it;
       * writes to multiple GPRs by a single instruction (e.g. load with update) do not target the
         same register.
     """
-    def __init__(self):
+    def __init__(self, post):
         self.pfv  = pfv.Interface()
-        self.trig = Record([
-            ("pre",  1),
-            ("post", 1),
-        ])
+        self.post = tb.Trigger(cycle=post)
+
+    def triggers(self):
+        yield self.post
 
     def elaborate(self, platform):
         m = Module()
@@ -58,7 +59,7 @@ class Check(Elaboratable):
                 with m.Else():
                     m.d.sync += gpr_shadow.eq(self.pfv.rt.w_data)
 
-        with m.If(self.trig.post):
+        with m.If(self.post.stb):
             m.d.sync += [
                 Assume(Past(self.pfv.stb)),
                 Assume(Past(self.pfv.order) == spec_order),
@@ -75,3 +76,10 @@ class Check(Elaboratable):
                     m.d.sync += Assert(Past(gpr_shadow) == Past(self.pfv.rt.r_data))
 
         return m
+
+
+class GPRCheck(PowerFVCheck, name="cons_gpr"):
+    def get_testbench(self, dut, post):
+        tb_spec = GPRSpec(post)
+        tb_top  = tb.Testbench(tb_spec, dut)
+        return tb_top

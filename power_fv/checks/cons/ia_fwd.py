@@ -1,24 +1,25 @@
 from amaranth import *
 from amaranth.asserts import *
 
-from .. import pfv
+from .. import PowerFVCheck
+from ... import pfv, tb
 
 
-__all__ = ["Check"]
+__all__ = ["IAForwardSpec", "IAForwardCheck"]
 
 
-class Check(Elaboratable):
-    """IA forward check.
+class IAForwardSpec(Elaboratable):
+    """IA forward specification.
 
-    Given two instructions retiring in order, check that the NIA of the first matches the CIA
+    Given two instructions retiring in order, the NIA of the first must match the CIA
     of the second.
     """
-    def __init__(self):
+    def __init__(self, post):
         self.pfv  = pfv.Interface()
-        self.trig = Record([
-            ("pre",  1),
-            ("post", 1),
-        ])
+        self.post = tb.Trigger(cycle=post)
+
+    def triggers(self):
+        yield self.post
 
     def elaborate(self, platform):
         m = Module()
@@ -33,7 +34,7 @@ class Check(Elaboratable):
                 pred_nia.eq(self.pfv.nia)
             ]
 
-        with m.If(self.trig.post):
+        with m.If(self.post.stb):
             m.d.sync += [
                 Assume(self.pfv.stb),
                 Assume(self.pfv.order == pred_order + 1),
@@ -42,3 +43,10 @@ class Check(Elaboratable):
             ]
 
         return m
+
+
+class IAForwardCheck(PowerFVCheck, name="cons_ia_fwd"):
+    def get_testbench(self, dut, post):
+        tb_spec = IAForwardSpec(post)
+        tb_top  = tb.Testbench(tb_spec, dut)
+        return tb_top

@@ -3,7 +3,11 @@ from amaranth.asserts import AnyConst
 from amaranth.hdl.ast import ValueCastable
 
 
-__all__ = ["Instruction_I", "Instruction_B", "Instruction_XL_bc", "Instruction_XL_crl"]
+__all__ = [
+    "Instruction_I",
+    "Instruction_B",
+    "Instruction_XL_bc", "Instruction_XL_crl", "Instruction_XL_crf",
+]
 
 
 class Instruction_I(ValueCastable):
@@ -94,3 +98,30 @@ class Instruction_XL_crl(ValueCastable):
     @ValueCastable.lowermethod
     def as_value(self):
         return Cat(self._0, self.xo, self.bb, self.ba, self.bt, self.po)
+
+
+class Instruction_XL_crf(ValueCastable):
+    po  = None
+    bf  = None
+    _0  = None
+    bfa = None
+    _1  = None
+    _2  = None
+    xo  = None
+    _3  = None
+
+    def __init_subclass__(cls, *, po, xo):
+        cls.po = Const(po, unsigned( 6))
+        cls.xo = Const(xo, unsigned(10))
+
+    def __init__(self):
+        self.bf  = AnyConst(unsigned(3))
+        self._0  = AnyConst(unsigned(2))
+        self.bfa = AnyConst(unsigned(3))
+        self._1  = AnyConst(unsigned(2))
+        self._2  = AnyConst(unsigned(5))
+        self._3  = AnyConst(unsigned(1))
+
+    @ValueCastable.lowermethod
+    def as_value(self):
+        return Cat(self._3, self.xo, self._2, self._1, self.bfa, self._0, self.bf, self.po)

@@ -31,3 +31,5 @@ class CRNOR  (CRCheck, name="insn_crnor",  insn_cls=_insn.CRNOR ): pass
 class CRANDC (CRCheck, name="insn_crandc", insn_cls=_insn.CRANDC): pass
 class CREQV  (CRCheck, name="insn_creqv",  insn_cls=_insn.CREQV ): pass
 class CRORC  (CRCheck, name="insn_crorc",  insn_cls=_insn.CRORC ): pass
+
+class MCRF   (CRCheck, name="insn_mcrf",   insn_cls=_insn.MCRF  ): pass

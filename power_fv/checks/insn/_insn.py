@@ -29,3 +29,5 @@ class CRNOR  (_fmt.Instruction_XL_crl, po=19, xo= 33): pass
 class CRANDC (_fmt.Instruction_XL_crl, po=19, xo=129): pass
 class CREQV  (_fmt.Instruction_XL_crl, po=19, xo=289): pass
 class CRORC  (_fmt.Instruction_XL_crl, po=19, xo=417): pass
+
+class MCRF   (_fmt.Instruction_XL_crf, po=19, xo=0): pass

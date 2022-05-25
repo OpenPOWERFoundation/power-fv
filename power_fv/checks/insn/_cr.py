@@ -33,12 +33,11 @@ class CRSpec(Elaboratable):
 
         # CR
 
-        spec_cr_r_stb  = Signal( 8)
-        spec_cr_w_stb  = Signal( 8)
+        spec_cr_r_stb  = Signal(8)
+        spec_cr_w_stb  = Signal(8)
         spec_cr_w_data = Signal(32)
 
-        if isinstance(spec_insn, (Instruction_XL_crl)):
-
+        if isinstance(spec_insn, Instruction_XL_crl):
             ba_r_field = Signal(4)
             bb_r_field = Signal(4)
             bt_r_field = Signal(4)
@@ -89,6 +88,18 @@ class CRSpec(Elaboratable):
                 spec_cr_w_stb[::-1].bit_select(spec_insn.bt[2:], width=1).eq(1),
                 spec_cr_w_data[::-1].eq(Repl(spec_bt_w_field, 8))
             ]
+
+        elif isinstance(spec_insn, MCRF):
+            bfa_r_field = Signal(4)
+
+            m.d.comb += [
+                bfa_r_field.eq(self.pfv.cr.r_data[::-1].word_select(spec_insn.bfa, width=4)),
+
+                spec_cr_r_stb[::-1].bit_select(spec_insn.bfa, width=1).eq(1),
+                spec_cr_w_stb[::-1].bit_select(spec_insn.bf,  width=1).eq(1),
+                spec_cr_w_data[::-1].eq(Repl(bfa_r_field, 8)),
+            ]
+
         else:
             assert False
 

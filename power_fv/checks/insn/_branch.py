@@ -226,7 +226,7 @@ class BranchSpec(Elaboratable):
         return m
 
 
-class BranchCheck(PowerFVCheck, name=None):
+class BranchCheck(PowerFVCheck, name="_insn_branch"):
     def __init_subclass__(cls, name, insn_cls):
         super().__init_subclass__(name)
         cls.insn_cls = insn_cls

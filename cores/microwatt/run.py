@@ -113,6 +113,15 @@ if __name__ == "__main__":
         ("insn_bcctrl",  {"post": 15}),
         ("insn_bctar",   {"post": 15}),
         ("insn_bctarl",  {"post": 15}),
+
+        ("insn_crand",   {"post": 15}),
+        ("insn_cror",    {"post": 15}),
+        ("insn_crnand",  {"post": 15}),
+        ("insn_crxor",   {"post": 15}),
+        ("insn_crnor",   {"post": 15}),
+        ("insn_crandc",  {"post": 15}),
+        ("insn_creqv",   {"post": 15}),
+        ("insn_crorc",   {"post": 15}),
     ]
 
     with multiprocessing.Pool(processes=args.jobs) as pool:

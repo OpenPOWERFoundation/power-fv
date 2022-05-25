@@ -122,6 +122,7 @@ if __name__ == "__main__":
         ("insn_crandc",  {"post": 15}),
         ("insn_creqv",   {"post": 15}),
         ("insn_crorc",   {"post": 15}),
+        ("insn_mcrf",    {"post": 15}),
     ]
 
     with multiprocessing.Pool(processes=args.jobs) as pool:

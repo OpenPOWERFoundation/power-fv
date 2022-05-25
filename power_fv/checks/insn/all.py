@@ -1,5 +1,6 @@
 from . import _insn
 from ._branch import BranchCheck
+from ._cr import CRCheck
 
 # Branches
 
@@ -19,3 +20,14 @@ class BCCTR  (BranchCheck, name="insn_bcctr",  insn_cls=_insn.BCCTR ): pass
 class BCCTRL (BranchCheck, name="insn_bcctrl", insn_cls=_insn.BCCTRL): pass
 class BCTAR  (BranchCheck, name="insn_bctar",  insn_cls=_insn.BCTAR ): pass
 class BCTARL (BranchCheck, name="insn_bctarl", insn_cls=_insn.BCTARL): pass
+
+# CR
+
+class CRAND  (CRCheck, name="insn_crand",  insn_cls=_insn.CRAND ): pass
+class CROR   (CRCheck, name="insn_cror",   insn_cls=_insn.CROR  ): pass
+class CRNAND (CRCheck, name="insn_crnand", insn_cls=_insn.CRNAND): pass
+class CRXOR  (CRCheck, name="insn_crxor",  insn_cls=_insn.CRXOR ): pass
+class CRNOR  (CRCheck, name="insn_crnor",  insn_cls=_insn.CRNOR ): pass
+class CRANDC (CRCheck, name="insn_crandc", insn_cls=_insn.CRANDC): pass
+class CREQV  (CRCheck, name="insn_creqv",  insn_cls=_insn.CREQV ): pass
+class CRORC  (CRCheck, name="insn_crorc",  insn_cls=_insn.CRORC ): pass

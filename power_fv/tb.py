@@ -10,8 +10,8 @@ __all__ = ["Trigger", "Testbench"]
 
 class Trigger:
     def __init__(self, cycle, name=None, src_loc_at=0):
-        if not isinstance(cycle, int) or cycle < 0:
-            raise ValueError("Clock cycle must be a non-negative integer, not {!r}"
+        if not isinstance(cycle, int) or cycle <= 0:
+            raise ValueError("Clock cycle must be a positive integer, not {!r}"
                              .format(cycle))
 
         self.stb   = Signal(name=name, src_loc_at=1 + src_loc_at)
@@ -19,16 +19,14 @@ class Trigger:
 
 
 class Testbench(Elaboratable):
-    def __init__(self, spec, dut, start=0):
-        self.spec  = spec
-        self.dut   = dut
-        self.start = Trigger(cycle=start)
+    def __init__(self, spec, dut):
+        self.spec = spec
+        self.dut  = dut
 
         self._triggers  = OrderedDict()
         self._bmc_depth = None
         self._frozen    = False
 
-        self.add_trigger(self.start)
         for trigger in spec.triggers():
             self.add_trigger(trigger)
 
@@ -56,20 +54,15 @@ class Testbench(Elaboratable):
     def elaborate(self, platform):
         m = Module()
 
-        cycle = Signal(range(self.bmc_depth), reset=0)
+        cycle = Signal(range(self.bmc_depth), reset=1)
 
-        with m.If(cycle < self.bmc_depth):
+        with m.If(cycle < self.bmc_depth - 1):
             m.d.sync += cycle.eq(cycle + 1)
 
         for trigger in self.triggers():
             m.d.comb += trigger.stb.eq(cycle == trigger.cycle)
 
-        spec_rst = Signal(reset=1)
-
-        with m.If(self.start.stb):
-            m.d.sync += spec_rst.eq(0)
-
-        m.submodules.spec = ResetInserter(spec_rst)(self.spec)
+        m.submodules.spec = self.spec
         m.submodules.dut  = self.dut
 
         m.d.comb += self.spec.pfv.eq(self.dut.pfv)

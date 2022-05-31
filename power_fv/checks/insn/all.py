@@ -1,6 +1,8 @@
 from . import _insn
 from ._branch import BranchCheck
 from ._cr import CRCheck
+from ._compare import CompareCheck
+
 
 # Branches
 
@@ -33,3 +35,10 @@ class CREQV  (CRCheck, name="insn_creqv",  insn_cls=_insn.CREQV ): pass
 class CRORC  (CRCheck, name="insn_crorc",  insn_cls=_insn.CRORC ): pass
 
 class MCRF   (CRCheck, name="insn_mcrf",   insn_cls=_insn.MCRF  ): pass
+
+# Compare
+
+class CMPI   (CompareCheck, name="insn_cmpi",   insn_cls=_insn.CMPI  ): pass
+class CMPLI  (CompareCheck, name="insn_cmpli",  insn_cls=_insn.CMPLI ): pass
+class CMP    (CompareCheck, name="insn_cmp",    insn_cls=_insn.CMP   ): pass
+class CMPL   (CompareCheck, name="insn_cmpl",   insn_cls=_insn.CMPL  ): pass

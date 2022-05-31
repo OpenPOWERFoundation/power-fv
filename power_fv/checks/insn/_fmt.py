@@ -6,6 +6,8 @@ from amaranth.hdl.ast import ValueCastable
 __all__ = [
     "Instruction_I",
     "Instruction_B",
+    "Instruction_D_cmp",
+    "Instruction_X_cmp",
     "Instruction_XL_bc", "Instruction_XL_crl", "Instruction_XL_crf",
 ]
 
@@ -125,3 +127,60 @@ class Instruction_XL_crf(ValueCastable):
     @ValueCastable.lowermethod
     def as_value(self):
         return Cat(self._3, self.xo, self._2, self._1, self.bfa, self._0, self.bf, self.po)
+
+
+class Instruction_D_cmp(ValueCastable):
+    po = None
+    bf = None
+    _0 = None
+    l  = None
+    ra = None
+    _i = None
+
+    def __init_subclass__(cls, *, po):
+        cls.po = Const(po, unsigned(6))
+
+    def __init__(self):
+        self.bf = AnyConst(unsigned(3))
+        self._0 = AnyConst(unsigned(1))
+        self.l  = AnyConst(unsigned(1))
+        self.ra = AnyConst(unsigned(5))
+        self._i = AnyConst(16)
+
+    @property
+    def si(self):
+        return self._i.as_signed()
+
+    def ui(self):
+        return self._i.as_unsigned()
+
+    @ValueCastable.lowermethod
+    def as_value(self):
+        return Cat(self._i, self.ra, self.l, self._0, self.bf, self.po)
+
+
+class Instruction_X_cmp(ValueCastable):
+    po = None
+    bf = None
+    _0 = None
+    l  = None
+    ra = None
+    rb = None
+    xo = None
+    _1 = None
+
+    def __init_subclass__(cls, *, po, xo):
+        cls.po = Const(po, unsigned( 6))
+        cls.xo = Const(xo, unsigned(10))
+
+    def __init__(self):
+        self.bf = AnyConst(unsigned(3))
+        self._0 = AnyConst(unsigned(1))
+        self.l  = AnyConst(unsigned(1))
+        self.ra = AnyConst(unsigned(5))
+        self.rb = AnyConst(unsigned(5))
+        self._1 = AnyConst(unsigned(1))
+
+    @ValueCastable.lowermethod
+    def as_value(self):
+        return Cat(self._1, self.xo, self.rb, self.ra, self.l, self._0, self.bf, self.po)

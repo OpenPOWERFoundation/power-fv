@@ -31,3 +31,10 @@ class CREQV  (_fmt.Instruction_XL_crl, po=19, xo=289): pass
 class CRORC  (_fmt.Instruction_XL_crl, po=19, xo=417): pass
 
 class MCRF   (_fmt.Instruction_XL_crf, po=19, xo=0): pass
+
+# Compare
+
+class CMPI   (_fmt.Instruction_D_cmp, po=11): pass
+class CMPLI  (_fmt.Instruction_D_cmp, po=10): pass
+class CMP    (_fmt.Instruction_X_cmp, po=31, xo=  0): pass
+class CMPL   (_fmt.Instruction_X_cmp, po=31, xo= 32): pass

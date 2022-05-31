@@ -133,6 +133,9 @@ if __name__ == "__main__":
         ("insn_cmpli",   {"post": 15}),
         ("insn_cmp",     {"post": 15}),
         ("insn_cmpl",    {"post": 15}),
+
+        ("insn_mtspr",   {"post": 15}),
+        ("insn_mfspr",   {"post": 15}),
     ]
 
     with multiprocessing.Pool(processes=args.jobs) as pool:

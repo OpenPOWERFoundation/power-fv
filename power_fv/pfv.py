@@ -66,13 +66,24 @@ class Interface(Record):
             ]),
         ]
 
+        # MSR
+
+        layout += [
+            ("msr", [
+                ("r_mask", 64),
+                ("r_data", 64),
+                ("w_mask", 64),
+                ("w_data", 64),
+            ]),
+        ]
+
         # SPRs
 
         layout += [
             (spr_name, [
-                ("r_stb",   1),
+                ("r_mask", 64),
                 ("r_data", 64),
-                ("w_stb",   1),
+                ("w_mask", 64),
                 ("w_data", 64),
             ]) for spr_name in (
                 "lr",
@@ -81,7 +92,6 @@ class Interface(Record):
                 "xer",
                 "srr0",
                 "srr1",
-                "msr",
             )
         ]
 

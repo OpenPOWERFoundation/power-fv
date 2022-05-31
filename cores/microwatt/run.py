@@ -97,7 +97,12 @@ if __name__ == "__main__":
         ("cons_ia_fwd",  {"post": 15}),
         ("cons_gpr",     {"post": 15}),
         ("cons_cr",      {"post": 15}),
-        ("cons_spr",     {"post": 15}),
+        ("cons_lr",      {"post": 15}),
+        ("cons_ctr",     {"post": 15}),
+        ("cons_xer",     {"post": 15}),
+        ("cons_tar",     {"post": 15}),
+        ("cons_srr0",    {"post": 15}),
+        ("cons_srr1",    {"post": 15}),
 
         ("insn_b",       {"post": 15}),
         ("insn_ba",      {"post": 15}),

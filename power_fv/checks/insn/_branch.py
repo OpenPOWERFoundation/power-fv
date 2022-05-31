@@ -30,11 +30,11 @@ class BranchSpec(Elaboratable):
             m.d.sync += [
                 Assume(self.pfv.stb),
                 Assume(self.pfv.insn[32:] == spec_insn),
-                Assert(self.pfv.msr.w_stb),
+                Assert(self.pfv.msr.w_mask[63 - 0]), # MSR.SF
             ]
 
         msr_w_sf = Signal()
-        m.d.comb += msr_w_sf.eq(self.pfv.msr.w_data[63])
+        m.d.comb += msr_w_sf.eq(self.pfv.msr.w_data[63 - 0])
 
         if isinstance(spec_insn, (Instruction_B, Instruction_XL_bc)):
             bo_valid_patterns = [
@@ -138,6 +138,9 @@ class BranchSpec(Elaboratable):
 
         spec_lr_r_stb  = Signal()
         spec_lr_w_stb  = Signal()
+
+        spec_lr_r_mask = Signal(64)
+        spec_lr_w_mask = Signal(64)
         spec_lr_w_data = Signal(64)
 
         if isinstance(spec_insn, (Instruction_I, Instruction_B)):
@@ -150,25 +153,31 @@ class BranchSpec(Elaboratable):
         else:
             assert False
 
+        m.d.comb += spec_lr_w_stb.eq(spec_insn.lk)
+
         cia_4 = Signal(unsigned(64))
         m.d.comb += cia_4.eq(self.pfv.cia + 4)
 
         m.d.comb += [
-            spec_lr_w_stb .eq(spec_insn.lk),
+            spec_lr_r_mask.eq(Repl(spec_lr_r_stb, 64)),
+            spec_lr_w_mask.eq(Repl(spec_lr_w_stb, 64)),
             spec_lr_w_data.eq(iea_mask(cia_4, msr_w_sf)),
         ]
 
         with m.If(self.post.stb & ~self.pfv.intr):
             m.d.sync += [
-                Assert(self.pfv.lr.r_stb == spec_lr_r_stb),
-                Assert(self.pfv.lr.w_stb == spec_lr_w_stb),
-                Assert(self.pfv.lr.w_stb.implies(self.pfv.lr.w_data == spec_lr_w_data)),
+                Assert((self.pfv.lr.r_mask & spec_lr_r_mask) == spec_lr_r_mask),
+                Assert(self.pfv.lr.w_mask == spec_lr_w_mask),
+                Assert((self.pfv.lr.w_data & spec_lr_w_mask) == (spec_lr_w_data & spec_lr_w_mask)),
             ]
 
         # CTR
 
         spec_ctr_r_stb  = Signal()
         spec_ctr_w_stb  = Signal()
+
+        spec_ctr_r_mask = Signal(64)
+        spec_ctr_w_mask = Signal(64)
         spec_ctr_w_data = Signal(64)
 
         if isinstance(spec_insn, Instruction_I):
@@ -195,18 +204,23 @@ class BranchSpec(Elaboratable):
         else:
             assert False
 
-        m.d.comb += spec_ctr_w_data.eq(self.pfv.ctr.r_data - 1)
+        m.d.comb += [
+            spec_ctr_r_mask.eq(Repl(spec_ctr_r_stb, 64)),
+            spec_ctr_w_mask.eq(Repl(spec_ctr_w_stb, 64)),
+            spec_ctr_w_data.eq(self.pfv.ctr.r_data - 1),
+        ]
 
         with m.If(self.post.stb & ~self.pfv.intr):
             m.d.sync += [
-                Assert(self.pfv.ctr.r_stb == spec_ctr_r_stb),
-                Assert(self.pfv.ctr.w_stb == spec_ctr_w_stb),
-                Assert(self.pfv.ctr.w_stb.implies(self.pfv.ctr.w_data == spec_ctr_w_data)),
+                Assert((self.pfv.ctr.r_mask & spec_ctr_r_mask) == spec_ctr_r_mask),
+                Assert(self.pfv.ctr.w_mask == spec_ctr_w_mask),
+                Assert((self.pfv.ctr.w_data & spec_ctr_w_mask) == (spec_ctr_w_data & spec_ctr_w_mask)),
             ]
 
         # TAR
 
-        spec_tar_r_stb = Signal()
+        spec_tar_r_stb  = Signal()
+        spec_tar_r_mask = Signal(64)
 
         if isinstance(spec_insn, (Instruction_I, Instruction_B)):
             m.d.comb += spec_tar_r_stb.eq(0)
@@ -218,10 +232,10 @@ class BranchSpec(Elaboratable):
         else:
             assert False
 
+        m.d.comb += spec_tar_r_mask.eq(Repl(spec_tar_r_stb, 64))
+
         with m.If(self.post.stb & ~self.pfv.intr):
-            m.d.sync += [
-                Assert(self.pfv.tar.r_stb == spec_tar_r_stb),
-            ]
+            m.d.sync += Assert((self.pfv.tar.r_mask & spec_tar_r_mask) == spec_tar_r_mask)
 
         return m
 

@@ -64,40 +64,40 @@ entity toplevel is
         pfv_cr_w_stb   : out std_ulogic_vector( 7 downto 0);
         pfv_cr_w_data  : out std_ulogic_vector(31 downto 0);
 
-        pfv_lr_r_stb   : out std_ulogic;
+        pfv_msr_r_mask : out std_ulogic_vector(63 downto 0);
+        pfv_msr_r_data : out std_ulogic_vector(63 downto 0);
+        pfv_msr_w_mask : out std_ulogic_vector(63 downto 0);
+        pfv_msr_w_data : out std_ulogic_vector(63 downto 0);
+
+        pfv_lr_r_mask  : out std_ulogic_vector(63 downto 0);
         pfv_lr_r_data  : out std_ulogic_vector(63 downto 0);
-        pfv_lr_w_stb   : out std_ulogic;
+        pfv_lr_w_mask  : out std_ulogic_vector(63 downto 0);
         pfv_lr_w_data  : out std_ulogic_vector(63 downto 0);
 
-        pfv_ctr_r_stb  : out std_ulogic;
+        pfv_ctr_r_mask : out std_ulogic_vector(63 downto 0);
         pfv_ctr_r_data : out std_ulogic_vector(63 downto 0);
-        pfv_ctr_w_stb  : out std_ulogic;
+        pfv_ctr_w_mask : out std_ulogic_vector(63 downto 0);
         pfv_ctr_w_data : out std_ulogic_vector(63 downto 0);
 
-        pfv_xer_r_stb  : out std_ulogic;
+        pfv_xer_r_mask : out std_ulogic_vector(63 downto 0);
         pfv_xer_r_data : out std_ulogic_vector(63 downto 0);
-        pfv_xer_w_stb  : out std_ulogic;
+        pfv_xer_w_mask : out std_ulogic_vector(63 downto 0);
         pfv_xer_w_data : out std_ulogic_vector(63 downto 0);
 
-        pfv_tar_r_stb  : out std_ulogic;
+        pfv_tar_r_mask : out std_ulogic_vector(63 downto 0);
         pfv_tar_r_data : out std_ulogic_vector(63 downto 0);
-        pfv_tar_w_stb  : out std_ulogic;
+        pfv_tar_w_mask : out std_ulogic_vector(63 downto 0);
         pfv_tar_w_data : out std_ulogic_vector(63 downto 0);
 
-        pfv_srr0_r_stb  : out std_ulogic;
+        pfv_srr0_r_mask : out std_ulogic_vector(63 downto 0);
         pfv_srr0_r_data : out std_ulogic_vector(63 downto 0);
-        pfv_srr0_w_stb  : out std_ulogic;
+        pfv_srr0_w_mask : out std_ulogic_vector(63 downto 0);
         pfv_srr0_w_data : out std_ulogic_vector(63 downto 0);
 
-        pfv_srr1_r_stb  : out std_ulogic;
+        pfv_srr1_r_mask : out std_ulogic_vector(63 downto 0);
         pfv_srr1_r_data : out std_ulogic_vector(63 downto 0);
-        pfv_srr1_w_stb  : out std_ulogic;
-        pfv_srr1_w_data : out std_ulogic_vector(63 downto 0);
-
-        pfv_msr_r_stb  : out std_ulogic;
-        pfv_msr_r_data : out std_ulogic_vector(63 downto 0);
-        pfv_msr_w_stb  : out std_ulogic;
-        pfv_msr_w_data : out std_ulogic_vector(63 downto 0)
+        pfv_srr1_w_mask : out std_ulogic_vector(63 downto 0);
+        pfv_srr1_w_data : out std_ulogic_vector(63 downto 0)
         );
 end entity toplevel;
 
@@ -171,39 +171,39 @@ begin
         pfv_cr_w_stb   <= pfv.cr.w_stb;
         pfv_cr_w_data  <= pfv.cr.w_data;
 
-        pfv_lr_r_stb   <= pfv.lr.r_stb;
+        pfv_msr_r_mask <= pfv.msr.r_mask;
+        pfv_msr_r_data <= pfv.msr.r_data;
+        pfv_msr_w_mask <= pfv.msr.w_mask;
+        pfv_msr_w_data <= pfv.msr.w_data;
+
+        pfv_lr_r_mask  <= pfv.lr.r_mask;
         pfv_lr_r_data  <= pfv.lr.r_data;
-        pfv_lr_w_stb   <= pfv.lr.w_stb;
+        pfv_lr_w_mask  <= pfv.lr.w_mask;
         pfv_lr_w_data  <= pfv.lr.w_data;
 
-        pfv_ctr_r_stb  <= pfv.ctr.r_stb;
+        pfv_ctr_r_mask <= pfv.ctr.r_mask;
         pfv_ctr_r_data <= pfv.ctr.r_data;
-        pfv_ctr_w_stb  <= pfv.ctr.w_stb;
+        pfv_ctr_w_mask <= pfv.ctr.w_mask;
         pfv_ctr_w_data <= pfv.ctr.w_data;
 
-        pfv_xer_r_stb  <= pfv.xer.r_stb;
+        pfv_xer_r_mask <= pfv.xer.r_mask;
         pfv_xer_r_data <= pfv.xer.r_data;
-        pfv_xer_w_stb  <= pfv.xer.w_stb;
+        pfv_xer_w_mask <= pfv.xer.w_mask;
         pfv_xer_w_data <= pfv.xer.w_data;
 
-        pfv_tar_r_stb  <= pfv.tar.r_stb;
+        pfv_tar_r_mask <= pfv.tar.r_mask;
         pfv_tar_r_data <= pfv.tar.r_data;
-        pfv_tar_w_stb  <= pfv.tar.w_stb;
+        pfv_tar_w_mask <= pfv.tar.w_mask;
         pfv_tar_w_data <= pfv.tar.w_data;
 
-        pfv_srr0_r_stb  <= pfv.srr0.r_stb;
+        pfv_srr0_r_mask <= pfv.srr0.r_mask;
         pfv_srr0_r_data <= pfv.srr0.r_data;
-        pfv_srr0_w_stb  <= pfv.srr0.w_stb;
+        pfv_srr0_w_mask <= pfv.srr0.w_mask;
         pfv_srr0_w_data <= pfv.srr0.w_data;
 
-        pfv_srr1_r_stb  <= pfv.srr1.r_stb;
+        pfv_srr1_r_mask <= pfv.srr1.r_mask;
         pfv_srr1_r_data <= pfv.srr1.r_data;
-        pfv_srr1_w_stb  <= pfv.srr1.w_stb;
+        pfv_srr1_w_mask <= pfv.srr1.w_mask;
         pfv_srr1_w_data <= pfv.srr1.w_data;
-
-        pfv_msr_r_stb  <= pfv.msr.r_stb;
-        pfv_msr_r_data <= pfv.msr.r_data;
-        pfv_msr_w_stb  <= pfv.msr.w_stb;
-        pfv_msr_w_data <= pfv.msr.w_data;
 
 end architecture behave;

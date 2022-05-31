@@ -126,40 +126,40 @@ class MicrowattWrapper(Elaboratable):
             ("o", "pfv_cr_w_stb",  self.pfv.cr.w_stb),
             ("o", "pfv_cr_w_data", self.pfv.cr.w_data),
 
-            ("o", "pfv_lr_r_stb",   self.pfv.lr.r_stb),
+            ("o", "pfv_msr_r_mask", self.pfv.msr.r_mask),
+            ("o", "pfv_msr_r_data", self.pfv.msr.r_data),
+            ("o", "pfv_msr_w_mask", self.pfv.msr.w_mask),
+            ("o", "pfv_msr_w_data", self.pfv.msr.w_data),
+
+            ("o", "pfv_lr_r_mask",  self.pfv.lr.r_mask),
             ("o", "pfv_lr_r_data",  self.pfv.lr.r_data),
-            ("o", "pfv_lr_w_stb",   self.pfv.lr.w_stb),
+            ("o", "pfv_lr_w_mask",  self.pfv.lr.w_mask),
             ("o", "pfv_lr_w_data",  self.pfv.lr.w_data),
 
-            ("o", "pfv_ctr_r_stb",  self.pfv.ctr.r_stb),
+            ("o", "pfv_ctr_r_mask", self.pfv.ctr.r_mask),
             ("o", "pfv_ctr_r_data", self.pfv.ctr.r_data),
-            ("o", "pfv_ctr_w_stb",  self.pfv.ctr.w_stb),
+            ("o", "pfv_ctr_w_mask", self.pfv.ctr.w_mask),
             ("o", "pfv_ctr_w_data", self.pfv.ctr.w_data),
 
-            ("o", "pfv_xer_r_stb",  self.pfv.xer.r_stb),
+            ("o", "pfv_xer_r_mask", self.pfv.xer.r_mask),
             ("o", "pfv_xer_r_data", self.pfv.xer.r_data),
-            ("o", "pfv_xer_w_stb",  self.pfv.xer.w_stb),
+            ("o", "pfv_xer_w_mask", self.pfv.xer.w_mask),
             ("o", "pfv_xer_w_data", self.pfv.xer.w_data),
 
-            ("o", "pfv_tar_r_stb",  self.pfv.tar.r_stb),
+            ("o", "pfv_tar_r_mask", self.pfv.tar.r_mask),
             ("o", "pfv_tar_r_data", self.pfv.tar.r_data),
-            ("o", "pfv_tar_w_stb",  self.pfv.tar.w_stb),
+            ("o", "pfv_tar_w_mask", self.pfv.tar.w_mask),
             ("o", "pfv_tar_w_data", self.pfv.tar.w_data),
 
-            ("o", "pfv_srr0_r_stb",  self.pfv.srr0.r_stb),
+            ("o", "pfv_srr0_r_mask", self.pfv.srr0.r_mask),
             ("o", "pfv_srr0_r_data", self.pfv.srr0.r_data),
-            ("o", "pfv_srr0_w_stb",  self.pfv.srr0.w_stb),
+            ("o", "pfv_srr0_w_mask", self.pfv.srr0.w_mask),
             ("o", "pfv_srr0_w_data", self.pfv.srr0.w_data),
 
-            ("o", "pfv_srr1_r_stb",  self.pfv.srr1.r_stb),
+            ("o", "pfv_srr1_r_mask", self.pfv.srr1.r_mask),
             ("o", "pfv_srr1_r_data", self.pfv.srr1.r_data),
-            ("o", "pfv_srr1_w_stb",  self.pfv.srr1.w_stb),
+            ("o", "pfv_srr1_w_mask", self.pfv.srr1.w_mask),
             ("o", "pfv_srr1_w_data", self.pfv.srr1.w_data),
-
-            ("o", "pfv_msr_r_stb",  self.pfv.msr.r_stb),
-            ("o", "pfv_msr_r_data", self.pfv.msr.r_data),
-            ("o", "pfv_msr_w_stb",  self.pfv.msr.w_stb),
-            ("o", "pfv_msr_w_data", self.pfv.msr.w_data),
         )
 
         with m.If(Initial()):

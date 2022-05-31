@@ -38,3 +38,8 @@ class CMPI   (_fmt.Instruction_D_cmp, po=11): pass
 class CMPLI  (_fmt.Instruction_D_cmp, po=10): pass
 class CMP    (_fmt.Instruction_X_cmp, po=31, xo=  0): pass
 class CMPL   (_fmt.Instruction_X_cmp, po=31, xo= 32): pass
+
+# Move To/From SPR
+
+class MTSPR  (_fmt.Instruction_XFX_spr, po=31, xo=467): pass
+class MFSPR  (_fmt.Instruction_XFX_spr, po=31, xo=339): pass

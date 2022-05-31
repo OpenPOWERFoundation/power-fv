@@ -9,6 +9,7 @@ __all__ = [
     "Instruction_D_cmp",
     "Instruction_X_cmp",
     "Instruction_XL_bc", "Instruction_XL_crl", "Instruction_XL_crf",
+    "Instruction_XFX_spr",
 ]
 
 
@@ -184,3 +185,32 @@ class Instruction_X_cmp(ValueCastable):
     @ValueCastable.lowermethod
     def as_value(self):
         return Cat(self._1, self.xo, self.rb, self.ra, self.l, self._0, self.bf, self.po)
+
+
+class Instruction_XFX_spr(ValueCastable):
+    po   = None
+    _gpr = None
+    spr  = None
+    xo   = None
+    _0   = None
+
+    def __init_subclass__(cls, *, po, xo):
+        cls.po = Const(po, unsigned( 6))
+        cls.xo = Const(xo, unsigned(10))
+
+    def __init__(self):
+        self._gpr = AnyConst(unsigned( 5))
+        self.spr  = AnyConst(unsigned(10))
+        self._0   = AnyConst(unsigned( 1))
+
+    @property
+    def rs(self):
+        return self._gpr
+
+    @property
+    def rt(self):
+        return self._gpr
+
+    @ValueCastable.lowermethod
+    def as_value(self):
+        return Cat(self._0, self.xo, self.spr, self._gpr, self.po)

@@ -6,10 +6,13 @@ from amaranth.hdl.ast import ValueCastable
 __all__ = [
     "Instruction_I",
     "Instruction_B",
-    "Instruction_D_cmp",
+    "Instruction_D_add", "Instruction_D_cmp",
+    "Instruction_DX",
     "Instruction_X_cmp",
     "Instruction_XL_bc", "Instruction_XL_crl", "Instruction_XL_crf",
     "Instruction_XFX_spr",
+    "Instruction_XO",
+    "Instruction_Z23_add",
 ]
 
 
@@ -130,6 +133,32 @@ class Instruction_XL_crf(ValueCastable):
         return Cat(self._3, self.xo, self._2, self._1, self.bfa, self._0, self.bf, self.po)
 
 
+class Instruction_D_add(ValueCastable):
+    po = None
+    rt = None
+    ra = None
+    _i = None
+
+    def __init_subclass__(cls, *, po):
+        cls.po = Const(po, unsigned(6))
+
+    def __init__(self):
+        self.rt = AnyConst(unsigned(5))
+        self.ra = AnyConst(unsigned(5))
+        self._i = AnyConst(16)
+
+    @property
+    def si(self):
+        return self._i.as_signed()
+
+    def ui(self):
+        return self._i.as_unsigned()
+
+    @ValueCastable.lowermethod
+    def as_value(self):
+        return Cat(self._i, self.ra, self.rt, self.po)
+
+
 class Instruction_D_cmp(ValueCastable):
     po = None
     bf = None
@@ -158,6 +187,29 @@ class Instruction_D_cmp(ValueCastable):
     @ValueCastable.lowermethod
     def as_value(self):
         return Cat(self._i, self.ra, self.l, self._0, self.bf, self.po)
+
+
+class Instruction_DX(ValueCastable):
+    po = None
+    rt = None
+    d1 = None
+    d0 = None
+    xo = None
+    d2 = None
+
+    def __init_subclass__(cls, *, po, xo):
+        cls.po = Const(po, unsigned(6))
+        cls.xo = Const(xo, unsigned(5))
+
+    def __init__(self):
+        self.rt = AnyConst(unsigned( 5))
+        self.d1 = AnyConst(unsigned( 5))
+        self.d0 = AnyConst(unsigned(10))
+        self.d2 = AnyConst(unsigned( 1))
+
+    @ValueCastable.lowermethod
+    def as_value(self):
+        return Cat(self.d2, self.xo, self.d0, self.d1, self.rt, self.po)
 
 
 class Instruction_X_cmp(ValueCastable):
@@ -214,3 +266,59 @@ class Instruction_XFX_spr(ValueCastable):
     @ValueCastable.lowermethod
     def as_value(self):
         return Cat(self._0, self.xo, self.spr, self._gpr, self.po)
+
+
+class Instruction_XO(ValueCastable):
+    po = None
+    rt = None
+    ra = None
+    rb = None
+    oe = None
+    xo = None
+    rc = None
+
+    def __init_subclass__(cls, *, po, xo, oe=None, rc=None):
+        cls.po = Const(po, unsigned(6))
+        cls.xo = Const(xo, unsigned(9))
+        if oe is not None:
+            cls.oe = Const(oe, unsigned(1))
+        if rc is not None:
+            cls.rc = Const(rc, unsigned(1))
+
+    def __init__(self):
+        self.rt = AnyConst(unsigned(5))
+        self.ra = AnyConst(unsigned(5))
+        self.rb = AnyConst(unsigned(5))
+        if self.oe is None:
+            self.oe = AnyConst(unsigned(1))
+        if self.rc is None:
+            self.rc = AnyConst(unsigned(1))
+
+    @ValueCastable.lowermethod
+    def as_value(self):
+        return Cat(self.rc, self.xo, self.oe, self.rb, self.ra, self.rt, self.po)
+
+
+class Instruction_Z23_add(ValueCastable):
+    po = None
+    rt = None
+    ra = None
+    rb = None
+    cy = None
+    xo = None
+    _0 = None
+
+    def __init_subclass__(cls, *, po, xo, cy):
+        cls.po = Const(po, unsigned(6))
+        cls.cy = Const(cy, unsigned(2))
+        cls.xo = Const(xo, unsigned(8))
+
+    def __init__(self):
+        self.rt = AnyConst(unsigned(5))
+        self.ra = AnyConst(unsigned(5))
+        self.rb = AnyConst(unsigned(5))
+        self._0 = AnyConst(unsigned(1))
+
+    @ValueCastable.lowermethod
+    def as_value(self):
+        return Cat(self._0, self.xo, self.cy, self.rb, self.ra, self.rt, self.po)

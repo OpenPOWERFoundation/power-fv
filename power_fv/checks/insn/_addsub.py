@@ -233,15 +233,6 @@ class AddSubtractSpec(Elaboratable):
         xer_w_ov32 = Signal()
         xer_w_ca32 = Signal()
 
-        m.d.comb += [
-            xer_r_so  .eq(self.pfv.xer.r_data[63 - 32]),
-            xer_w_so  .eq(xer_w_ov),
-            xer_w_ov  .eq(Mux(msr_r_sf, ov_64, ov_32)),
-            xer_w_ca  .eq(Mux(msr_r_sf, ca_64, ca_32)),
-            xer_w_ov32.eq(ov_32),
-            xer_w_ca32.eq(ca_32),
-        ]
-
         if isinstance(spec_insn, (
             ADD_   , ADDO_   , ADDIC_ ,
             SUBF_  , SUBFO_  ,
@@ -252,20 +243,9 @@ class AddSubtractSpec(Elaboratable):
             NEG_   , NEGO_   ,
             )):
             # Read XER.SO (to update CR0)
-            m.d.comb += spec_xer_r_mask[63 - 32].eq(1)
-
-        if isinstance(spec_insn, (
-            ADDO  , ADDO_  , SUBFO  , SUBFO_  ,
-            ADDCO , ADDCO_ , SUBFCO , SUBFCO_ ,
-            ADDEO , ADDEO_ , SUBFEO , SUBFEO_ ,
-            ADDMEO, ADDMEO_, SUBFMEO, SUBFMEO_,
-            ADDZEO, ADDZEO_, SUBFZEO, SUBFZEO_,
-            NEGO  , NEGO_  ,
-            )):
-            # Set XER.SO
             m.d.comb += [
-                spec_xer_w_mask[63 - 32].eq(xer_w_so),
-                spec_xer_w_data[63 - 32].eq(xer_w_so),
+                xer_r_so.eq(self.pfv.xer.r_data[63 - 32]),
+                spec_xer_r_mask[63 - 32].eq(1),
             ]
 
         if isinstance(spec_insn, (
@@ -274,11 +254,25 @@ class AddSubtractSpec(Elaboratable):
             ADDEO , ADDEO_ , SUBFEO , SUBFEO_ ,
             ADDMEO, ADDMEO_, SUBFMEO, SUBFMEO_,
             ADDZEO, ADDZEO_, SUBFZEO, SUBFZEO_,
-            ADDEX ,
             NEGO  , NEGO_  ,
             )):
+            # Set XER.SO, write XER.OV and XER.OV32
+            m.d.comb += [
+                xer_w_so  .eq(xer_w_ov),
+                xer_w_ov  .eq(Mux(msr_r_sf, ov_64, ov_32)),
+                xer_w_ov32.eq(ov_32),
+                spec_xer_w_mask[63 - 32].eq(xer_w_so),
+                spec_xer_w_data[63 - 32].eq(xer_w_so),
+                spec_xer_w_mask[63 - 33].eq(1),
+                spec_xer_w_data[63 - 33].eq(xer_w_ov),
+                spec_xer_w_mask[63 - 44].eq(1),
+                spec_xer_w_data[63 - 44].eq(xer_w_ov32),
+            ]
+        elif isinstance(spec_insn, ADDEX):
             # Write XER.OV and XER.OV32
             m.d.comb += [
+                xer_w_ov  .eq(Mux(msr_r_sf, ca_64, ca_32)),
+                xer_w_ov32.eq(ca_32),
                 spec_xer_w_mask[63 - 33].eq(1),
                 spec_xer_w_data[63 - 33].eq(xer_w_ov),
                 spec_xer_w_mask[63 - 44].eq(1),
@@ -298,6 +292,8 @@ class AddSubtractSpec(Elaboratable):
             )):
             # Write XER.CA and XER.CA32
             m.d.comb += [
+                xer_w_ca  .eq(Mux(msr_r_sf, ca_64, ca_32)),
+                xer_w_ca32.eq(ca_32),
                 spec_xer_w_mask[63 - 34].eq(1),
                 spec_xer_w_data[63 - 34].eq(xer_w_ca),
                 spec_xer_w_mask[63 - 45].eq(1),
@@ -328,13 +324,6 @@ class AddSubtractSpec(Elaboratable):
         cr0_w_eq = Signal()
         cr0_w_so = Signal()
 
-        m.d.comb += [
-            cr0_w_lt.eq(Mux(msr_r_sf, result[63], result[31])),
-            cr0_w_gt.eq(~(cr0_w_lt | cr0_w_eq)),
-            cr0_w_eq.eq(~Mux(msr_r_sf, result[:64].any(), result[:32].any())),
-            cr0_w_so.eq(Mux(spec_xer_w_mask[63 - 32], xer_w_so, xer_r_so)),
-        ]
-
         if isinstance(spec_insn, (
             ADD_   , ADDO_   , ADDIC_ ,
             SUBF_  , SUBFO_  ,
@@ -346,6 +335,11 @@ class AddSubtractSpec(Elaboratable):
             )):
             # Write CR0
             m.d.comb += [
+                cr0_w_lt.eq(Mux(msr_r_sf, result[63], result[31])),
+                cr0_w_gt.eq(~(cr0_w_lt | cr0_w_eq)),
+                cr0_w_eq.eq(~Mux(msr_r_sf, result[:64].any(), result[:32].any())),
+                cr0_w_so.eq(Mux(xer_w_so, xer_w_so, xer_r_so)),
+
                 spec_cr_w_stb [ 7 - 0].eq(1),
                 spec_cr_w_data[31 - 0].eq(cr0_w_lt),
                 spec_cr_w_data[31 - 1].eq(cr0_w_gt),

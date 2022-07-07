@@ -1,8 +1,55 @@
 from amaranth import *
 from amaranth.utils import log2_int
 
+from power_fv.reg import *
 
-__all__ = ["Interface"]
+
+__all__ = [
+    "gprf_port_layout", "reg_port_layout", "mem_port_layout",
+    "Interface",
+]
+
+
+def gprf_port_layout():
+    return [
+        ("index" ,  unsigned( 5)),
+        ("r_stb" ,  unsigned( 1)),
+        ("r_data",  unsigned(64)),
+        ("w_stb",   unsigned( 1)),
+        ("w_data",  unsigned(64)),
+    ]
+
+
+def reg_port_layout(reg_layout):
+    return [
+        ("r_mask",  reg_layout),
+        ("r_data",  reg_layout),
+        ("w_mask",  reg_layout),
+        ("w_data",  reg_layout),
+    ]
+
+
+def mem_port_layout(access):
+    if access not in ("r", "rw"):
+        raise ValueError("Access mode must be \"r\" or \"rw\", not {!r}"
+                        .format(access))
+
+    granularity = 8
+    data_width  = 64
+    mask_width  = data_width // granularity
+    addr_width  = 64 - log2_int(data_width // granularity)
+
+    access_layout = [
+        ("mask", unsigned(mask_width)),
+        ("data", unsigned(data_width)),
+    ]
+
+    layout = [("addr", unsigned(addr_width))]
+    if "r" in access:
+        layout += [("r", access_layout)]
+    if "w" in access:
+        layout += [("w", access_layout)]
+    return layout
 
 
 class Interface(Record):
@@ -18,107 +65,28 @@ class Interface(Record):
     """
     def __init__(self, *, name=None, src_loc_at=0):
         layout = [
-            ("stb",    1),
-            ("insn",  64),
-            ("order", 64),
-            ("intr",   1),
+            ("stb"  , unsigned( 1)),
+            ("insn" , unsigned(64)),
+            ("order", unsigned(64)),
+            ("intr" , unsigned( 1)),
+            ("cia"  , unsigned(64)),
+            ("nia"  , unsigned(64)),
+
+            ("ra", gprf_port_layout()),
+            ("rb", gprf_port_layout()),
+            ("rs", gprf_port_layout()),
+            ("rt", gprf_port_layout()),
+
+            ("cr"  , reg_port_layout(  cr_layout)),
+            ("msr" , reg_port_layout( msr_layout)),
+            ("lr"  , reg_port_layout(  lr_layout)),
+            ("ctr" , reg_port_layout( ctr_layout)),
+            ("tar" , reg_port_layout( tar_layout)),
+            ("xer" , reg_port_layout( xer_layout)),
+            ("srr0", reg_port_layout(srr0_layout)),
+            ("srr1", reg_port_layout(srr1_layout)),
+
+            ("insn_mem", mem_port_layout(access="r" )),
+            ("data_mem", mem_port_layout(access="rw")),
         ]
-
-        # IA
-
-        layout += [
-            ("cia", 64),
-            ("nia", 64),
-        ]
-
-        # GPRs
-
-        def gprf_port(access):
-            assert access in ("r", "w", "rw")
-            layout = [("index", 5)]
-            if "r" in access:
-                layout += [
-                    ("r_stb",   1),
-                    ("r_data", 64),
-                ]
-            if "w" in access:
-                layout += [
-                    ("w_stb",   1),
-                    ("w_data", 64),
-                ]
-            return layout
-
-        layout += [
-            ("ra", gprf_port("rw")),
-            ("rb", gprf_port("r")),
-            ("rs", gprf_port("r")),
-            ("rt", gprf_port("rw")),
-        ]
-
-        # CR
-
-        layout += [
-            ("cr", [
-                ("r_stb",   8),
-                ("r_data", 32),
-                ("w_stb",   8),
-                ("w_data", 32),
-            ]),
-        ]
-
-        # MSR
-
-        layout += [
-            ("msr", [
-                ("r_mask", 64),
-                ("r_data", 64),
-                ("w_mask", 64),
-                ("w_data", 64),
-            ]),
-        ]
-
-        # SPRs
-
-        layout += [
-            (spr_name, [
-                ("r_mask", 64),
-                ("r_data", 64),
-                ("w_mask", 64),
-                ("w_data", 64),
-            ]) for spr_name in (
-                "lr",
-                "ctr",
-                "tar",
-                "xer",
-                "srr0",
-                "srr1",
-            )
-        ]
-
-        # Storage
-
-        def mem_port(access, *, depth_log2=64, width=64, granularity=8):
-            assert access in ("r", "rw")
-            assert depth_log2 in (32, 64)
-            assert width in (32, 64)
-            assert granularity in (8, 16, 32, 64)
-            assert width >= granularity
-            granularity_bits = max(1, log2_int(width // granularity))
-            layout = [
-                ("addr",   depth_log2 - granularity_bits),
-                ("r_stb",  granularity_bits),
-                ("r_data", width),
-            ]
-            if "w" in access:
-                layout += [
-                    ("w_stb",  granularity_bits),
-                    ("w_data", width),
-                ]
-            return layout
-
-        layout += [
-            ("insn_mem", mem_port("r")),
-            ("data_mem", mem_port("rw")),
-        ]
-
         super().__init__(layout, name=name, src_loc_at=1 + src_loc_at)

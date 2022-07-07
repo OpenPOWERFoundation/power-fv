@@ -7,7 +7,7 @@
 Get Microwatt:
 
 ```
-git clone git@git.openpower.foundation:jfng/microwatt -b powerfv
+git clone git@git.openpower.foundation:jfng/microwatt -b powerfv microwatt-src
 ```
 
 ## Usage
@@ -17,13 +17,19 @@ git clone git@git.openpower.foundation:jfng/microwatt -b powerfv
 ```
 poetry shell
 
-python ./run.py --help
+python microwatt.py -h
 
 exit
 ```
 
-### Run the checks locally
+### Run commands from a file
 
 ```
-python run.py --jobs=$(nproc)
+python microwatt.py -c checks.pfv
+```
+
+### Run commands interactively
+
+```
+python microwatt.py -i
 ```

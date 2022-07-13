@@ -2,6 +2,7 @@ from pathlib import PurePath
 from power_fv.session import PowerFVSession
 
 from .core import MicrowattCore
+from .check.storage import *
 
 
 class MicrowattSession(PowerFVSession, core_cls=MicrowattCore):

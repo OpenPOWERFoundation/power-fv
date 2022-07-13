@@ -3,5 +3,7 @@ check cia    --depth=15
 check gpr    --depth=15
 check insn   --depth=15
 
+check microwatt:storage:data --depth=15
+
 build --build-dir=./build --src-dir=./src
 exit

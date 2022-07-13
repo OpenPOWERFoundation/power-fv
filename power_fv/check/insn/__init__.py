@@ -1,6 +1,7 @@
 from amaranth import *
 from amaranth.asserts import *
 
+from power_fv.pfv import mem_port_layout
 from power_fv.check import PowerFVCheck, PowerFVCheckMeta
 from power_fv.check._timer import Timer
 
@@ -85,6 +86,13 @@ class InsnTestbench(Elaboratable):
                 Assert(rt.valid.all()),
             ]
 
+        m.submodules.mem = mem = _MemPortTest(self.check)
+
+        m.d.comb += spec.pfv.mem.r_data.eq(dut.pfv.mem.r_data)
+
+        with m.If(t_post.zero & ~spec.pfv.intr):
+            m.d.comb += Assert(mem.valid.all())
+
         m.submodules.cr   = cr   = _SysRegTest(self.check, reg="cr"  )
         m.submodules.msr  = msr  = _SysRegTest(self.check, reg="msr" )
         m.submodules.lr   = lr   = _SysRegTest(self.check, reg="lr"  )
@@ -150,6 +158,43 @@ class _GPRFileTest(Elaboratable):
             self.valid.write.index .eq(spec.w_stb.implies(dut.index == spec.index)),
             self.valid.write.w_stb .eq(spec.w_stb == dut.w_stb),
             self.valid.write.w_data.eq(spec.w_stb.implies(dut.w_data == spec.w_data)),
+        ]
+
+        return m
+
+
+class _MemPortTest(Elaboratable):
+    def __init__(self, check):
+        self._dut  = check.dut .pfv.mem
+        self._spec = check.spec.pfv.mem
+
+        self.valid = Record([
+            ("read",  [("addr", 1), ("r_mask", 1)]),
+            ("write", [("addr", 1), ("w_mask", 1), ("w_data", 1)]),
+        ])
+
+    def elaborate(self, platform):
+        m = Module()
+
+        dut  = Record(mem_port_layout())
+        spec = Record(mem_port_layout())
+
+        def contains(a, mask, b):
+            mask_8 = Cat(Repl(bit, 8) for bit in mask)
+            return a & mask_8 == b & mask_8
+
+        m.d.comb += [
+            dut .eq(self._dut),
+            spec.eq(self._spec),
+
+            # The DUT and the spec must read from the same bits at the same address.
+            self.valid.read.addr  .eq(spec.r_mask.any().implies(dut.addr == spec.addr)),
+            self.valid.read.r_mask.eq(spec.r_mask == dut.r_mask),
+
+            # The DUT and the spec must write the same value to the same bits at the same address.
+            self.valid.write.addr  .eq(spec.w_mask.any().implies(dut.addr == spec.addr)),
+            self.valid.write.w_mask.eq(spec.w_mask == dut.w_mask),
+            self.valid.write.w_data.eq(contains(dut.w_data, spec.w_mask, spec.w_data)),
         ]
 
         return m

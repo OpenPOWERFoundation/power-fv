@@ -5,7 +5,7 @@ from power_fv.reg import *
 
 
 __all__ = [
-    "gprf_port_layout", "reg_port_layout", "mem_port_layout",
+    "gprf_port_layout", "mem_port_layout", "reg_port_layout",
     "Interface",
 ]
 
@@ -20,6 +20,17 @@ def gprf_port_layout():
     ]
 
 
+def mem_port_layout():
+    layout = [
+        ("addr",   unsigned(64)),
+        ("r_mask", unsigned( 8)),
+        ("r_data", unsigned(64)),
+        ("w_mask", unsigned( 8)),
+        ("w_data", unsigned(64)),
+    ]
+    return layout
+
+
 def reg_port_layout(reg_layout):
     return [
         ("r_mask",  reg_layout),
@@ -27,29 +38,6 @@ def reg_port_layout(reg_layout):
         ("w_mask",  reg_layout),
         ("w_data",  reg_layout),
     ]
-
-
-def mem_port_layout(access):
-    if access not in ("r", "rw"):
-        raise ValueError("Access mode must be \"r\" or \"rw\", not {!r}"
-                        .format(access))
-
-    granularity = 8
-    data_width  = 64
-    mask_width  = data_width // granularity
-    addr_width  = 64 - log2_int(data_width // granularity)
-
-    access_layout = [
-        ("mask", unsigned(mask_width)),
-        ("data", unsigned(data_width)),
-    ]
-
-    layout = [("addr", unsigned(addr_width))]
-    if "r" in access:
-        layout += [("r", access_layout)]
-    if "w" in access:
-        layout += [("w", access_layout)]
-    return layout
 
 
 class Interface(Record):
@@ -77,6 +65,8 @@ class Interface(Record):
             ("rs", gprf_port_layout()),
             ("rt", gprf_port_layout()),
 
+            ("mem", mem_port_layout()),
+
             ("cr"  , reg_port_layout(  cr_layout)),
             ("msr" , reg_port_layout( msr_layout)),
             ("lr"  , reg_port_layout(  lr_layout)),
@@ -85,8 +75,5 @@ class Interface(Record):
             ("xer" , reg_port_layout( xer_layout)),
             ("srr0", reg_port_layout(srr0_layout)),
             ("srr1", reg_port_layout(srr1_layout)),
-
-            ("insn_mem", mem_port_layout(access="r" )),
-            ("data_mem", mem_port_layout(access="rw")),
         ]
         super().__init__(layout, name=name, src_loc_at=1 + src_loc_at)

@@ -43,6 +43,9 @@ class PowerFVCheck(metaclass=PowerFVCheckMeta):
         parser.add_argument(
             "--skip", type=int, default=None,
             help="skip the specified number of clock cycles (default: DEPTH-1))")
+        parser.add_argument(
+            "--cover", action="store_true",
+            help="generate the shortest trace to reach every Cover() statement")
 
     @classmethod
     def add_build_arguments(cls, parser):
@@ -50,9 +53,10 @@ class PowerFVCheck(metaclass=PowerFVCheckMeta):
             "--build-dir", type=Path, default=Path("./build"),
             help="output directory (default: %(default)s)")
 
-    def __init__(self, *, depth, skip, core, **kwargs):
+    def __init__(self, *, depth, skip, cover, core, **kwargs):
         self.depth = depth
         self.skip  = skip if skip is not None else depth - 1
+        self.cover = bool(cover)
         self.core  = core
         self.dut   = core.wrapper(**kwargs)
 
@@ -69,5 +73,6 @@ class PowerFVCheck(metaclass=PowerFVCheckMeta):
         overrides = {key: str(value) for key, value in kwargs.items()}
         overrides["depth"] = str(self.depth)
         overrides["skip"] = str(self.skip)
+        overrides["mode"] = "cover" if self.cover else "bmc"
 
         return platform.build(top, name=top.name, build_dir=build_dir, **overrides)

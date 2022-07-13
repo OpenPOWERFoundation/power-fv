@@ -9,6 +9,7 @@ license = "BSD"
 python = "^3.8"
 jinja2 = "~3.0"
 amaranth = {git = "https://github.com/amaranth-lang/amaranth.git", branch="main"}
+amaranth_soc = {git = "https://github.com/amaranth-lang/amaranth-soc.git", branch="main"}
 
 [build-system]
 requires = ["poetry-core"]

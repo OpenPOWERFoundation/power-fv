@@ -7,7 +7,7 @@
 Get Microwatt:
 
 ```
-git clone git@git.openpower.foundation:jfng/microwatt -b powerfv microwatt-src
+git clone git@git.openpower.foundation:jfng/microwatt -b powerfv src
 ```
 
 ## Usage

@@ -4,13 +4,13 @@ import textwrap
 
 from amaranth import *
 from amaranth.asserts import *
+from amaranth_soc import wishbone
 
 from power_fv import pfv
 from power_fv.core import PowerFVCore
-from power_fv.session import PowerFVSession
 
 
-__all__ = ["MicrowattWrapper", "MicrowattCore", "MicrowattSession"]
+__all__ = ["MicrowattWrapper", "MicrowattCore"]
 
 
 class MicrowattWrapper(Elaboratable):
@@ -134,50 +134,59 @@ class MicrowattWrapper(Elaboratable):
     """)
 
     def __init__(self, **kwargs):
-        self.pfv = pfv.Interface()
-        self._kwargs = kwargs
+        self.pfv     = pfv.Interface()
+        self.wb_insn = wishbone.Interface(addr_width=29, data_width=64, granularity=8,
+                                          features=("stall",))
+        self.wb_data = wishbone.Interface(addr_width=29, data_width=64, granularity=8,
+                                          features=("stall",))
 
-    def _render_toplevel(self):
-        return self.MICROWATT_TOPLEVEL.format(**self._kwargs)
+        def keep_wb_fanout(wb_bus):
+            for field_name in ("adr", "dat_w", "sel", "cyc", "stb", "we"):
+                wb_bus[field_name].attrs["keep"] = True
+
+        keep_wb_fanout(self.wb_insn)
+        keep_wb_fanout(self.wb_data)
+
+        self._toplevel_src = self.MICROWATT_TOPLEVEL.format(**kwargs)
 
     def elaborate(self, platform):
         m = Module()
 
-        wb_insn_dat_r  = AnySeq(64)
-        wb_insn_ack    = AnySeq( 1)
-        wb_insn_stall  = AnySeq( 1)
-        wb_insn_adr    = Signal(29, attrs={"keep": True})
-        wb_insn_dat_w  = Signal(64, attrs={"keep": True})
-        wb_insn_sel    = Signal( 8, attrs={"keep": True})
-        wb_insn_cyc    = Signal(    attrs={"keep": True})
-        wb_insn_stb    = Signal(    attrs={"keep": True})
-        wb_insn_we     = Signal(    attrs={"keep": True})
+        wb_snoop   = wishbone.Interface(addr_width=29, data_width=64, granularity=8)
+        dmi        = Record([
+            ("addr", unsigned( 4)),
+            ("din",  unsigned(64)),
+            ("dout", unsigned(64)),
+            ("req",  unsigned( 1)),
+            ("wr",   unsigned( 1)),
+            ("ack",  unsigned( 1)),
+        ])
+        terminated = Signal(attrs={"keep": True})
 
-        wb_data_dat_r  = AnySeq(64)
-        wb_data_ack    = AnySeq( 1)
-        wb_data_stall  = AnySeq( 1)
-        wb_data_adr    = Signal(29, attrs={"keep": True})
-        wb_data_dat_w  = Signal(64, attrs={"keep": True})
-        wb_data_sel    = Signal( 8, attrs={"keep": True})
-        wb_data_cyc    = Signal( 1, attrs={"keep": True})
-        wb_data_stb    = Signal( 1, attrs={"keep": True})
-        wb_data_we     = Signal( 1, attrs={"keep": True})
+        dmi.dout.attrs["keep"] = True
+        dmi.ack .attrs["keep"] = True
 
-        wb_snoop_adr   = AnySeq(29)
-        wb_snoop_dat_w = AnySeq(64)
-        wb_snoop_sel   = AnySeq( 8)
-        wb_snoop_cyc   = AnySeq( 1)
-        wb_snoop_stb   = AnySeq( 1)
-        wb_snoop_we    = AnySeq( 1)
+        m.d.comb += [
+            self.wb_insn.dat_r.eq(AnySeq(64)),
+            self.wb_insn.ack  .eq(AnySeq( 1)),
+            self.wb_insn.stall.eq(AnySeq( 1)),
 
-        dmi_addr       = AnySeq( 4)
-        dmi_din        = AnySeq(64)
-        dmi_req        = AnySeq( 1)
-        dmi_wr         = AnySeq( 1)
-        dmi_dout       = Signal(64, attrs={"keep": True})
-        dmi_ack        = Signal(    attrs={"keep": True})
+            self.wb_data.dat_r.eq(AnySeq(64)),
+            self.wb_data.ack  .eq(AnySeq( 1)),
+            self.wb_data.stall.eq(AnySeq( 1)),
 
-        terminated     = Signal(    attrs={"keep": True})
+            wb_snoop.adr  .eq(AnySeq(29)),
+            wb_snoop.dat_w.eq(AnySeq(64)),
+            wb_snoop.sel  .eq(AnySeq( 8)),
+            wb_snoop.cyc  .eq(AnySeq( 1)),
+            wb_snoop.stb  .eq(AnySeq( 1)),
+            wb_snoop.we   .eq(AnySeq( 1)),
+
+            dmi.addr.eq(AnySeq( 4)),
+            dmi.din .eq(AnySeq(64)),
+            dmi.req .eq(AnySeq( 1)),
+            dmi.wr  .eq(AnySeq( 1)),
+        ]
 
         m.submodules.dut = Instance("toplevel",
             ("i", "clk",       ClockSignal()),
@@ -185,39 +194,39 @@ class MicrowattWrapper(Elaboratable):
             ("i", "alt_reset", Const(0)),
             ("i", "ext_irq",   Const(0)),
 
-            ("i", "wishbone_insn_in.dat"  , wb_insn_dat_r),
-            ("i", "wishbone_insn_in.ack"  , wb_insn_ack  ),
-            ("i", "wishbone_insn_in.stall", wb_insn_stall),
-            ("o", "wishbone_insn_out.adr" , wb_insn_adr  ),
-            ("o", "wishbone_insn_out.dat" , wb_insn_dat_w),
-            ("o", "wishbone_insn_out.sel" , wb_insn_sel  ),
-            ("o", "wishbone_insn_out.cyc" , wb_insn_cyc  ),
-            ("o", "wishbone_insn_out.stb" , wb_insn_stb  ),
-            ("o", "wishbone_insn_out.we"  , wb_insn_we   ),
+            ("i", "wishbone_insn_in.dat"  , self.wb_insn.dat_r),
+            ("i", "wishbone_insn_in.ack"  , self.wb_insn.ack  ),
+            ("i", "wishbone_insn_in.stall", self.wb_insn.stall),
+            ("o", "wishbone_insn_out.adr" , self.wb_insn.adr  ),
+            ("o", "wishbone_insn_out.dat" , self.wb_insn.dat_w),
+            ("o", "wishbone_insn_out.sel" , self.wb_insn.sel  ),
+            ("o", "wishbone_insn_out.cyc" , self.wb_insn.cyc  ),
+            ("o", "wishbone_insn_out.stb" , self.wb_insn.stb  ),
+            ("o", "wishbone_insn_out.we"  , self.wb_insn.we   ),
 
-            ("i", "wishbone_data_in.dat"  , wb_data_dat_r),
-            ("i", "wishbone_data_in.ack"  , wb_data_ack  ),
-            ("i", "wishbone_data_in.stall", wb_data_stall),
-            ("o", "wishbone_data_out.adr" , wb_data_adr  ),
-            ("o", "wishbone_data_out.dat" , wb_data_dat_w),
-            ("o", "wishbone_data_out.sel" , wb_data_sel  ),
-            ("o", "wishbone_data_out.cyc" , wb_data_cyc  ),
-            ("o", "wishbone_data_out.stb" , wb_data_stb  ),
-            ("o", "wishbone_data_out.we"  , wb_data_we   ),
+            ("i", "wishbone_data_in.dat"  , self.wb_data.dat_r),
+            ("i", "wishbone_data_in.ack"  , self.wb_data.ack  ),
+            ("i", "wishbone_data_in.stall", self.wb_data.stall),
+            ("o", "wishbone_data_out.adr" , self.wb_data.adr  ),
+            ("o", "wishbone_data_out.dat" , self.wb_data.dat_w),
+            ("o", "wishbone_data_out.sel" , self.wb_data.sel  ),
+            ("o", "wishbone_data_out.cyc" , self.wb_data.cyc  ),
+            ("o", "wishbone_data_out.stb" , self.wb_data.stb  ),
+            ("o", "wishbone_data_out.we"  , self.wb_data.we   ),
 
-            ("i", "wb_snoop_in.adr", wb_snoop_adr  ),
-            ("i", "wb_snoop_in.dat", wb_snoop_dat_w),
-            ("i", "wb_snoop_in.sel", wb_snoop_sel  ),
-            ("i", "wb_snoop_in.cyc", wb_snoop_cyc  ),
-            ("i", "wb_snoop_in.stb", wb_snoop_stb  ),
-            ("i", "wb_snoop_in.we" , wb_snoop_we   ),
+            ("i", "wb_snoop_in.adr", wb_snoop.adr  ),
+            ("i", "wb_snoop_in.dat", wb_snoop.dat_w),
+            ("i", "wb_snoop_in.sel", wb_snoop.sel  ),
+            ("i", "wb_snoop_in.cyc", wb_snoop.cyc  ),
+            ("i", "wb_snoop_in.stb", wb_snoop.stb  ),
+            ("i", "wb_snoop_in.we" , wb_snoop.we   ),
 
-            ("i", "dmi_addr", dmi_addr),
-            ("i", "dmi_din" , dmi_din ),
-            ("o", "dmi_dout", dmi_dout),
-            ("i", "dmi_req" , dmi_req ),
-            ("i", "dmi_wr"  , dmi_wr  ),
-            ("o", "dmi_ack" , dmi_ack ),
+            ("i", "dmi_addr", dmi.addr),
+            ("i", "dmi_din" , dmi.din ),
+            ("o", "dmi_dout", dmi.dout),
+            ("i", "dmi_req" , dmi.req ),
+            ("i", "dmi_wr"  , dmi.wr  ),
+            ("o", "dmi_ack" , dmi.ack ),
 
             ("o", "terminated_out", terminated),
 
@@ -231,6 +240,7 @@ class MicrowattWrapper(Elaboratable):
             ("o", "pfv_out.rb"   , self.pfv.rb   ),
             ("o", "pfv_out.rs"   , self.pfv.rs   ),
             ("o", "pfv_out.rt"   , self.pfv.rt   ),
+            ("o", "pfv_out.mem"  , self.pfv.mem  ),
             ("o", "pfv_out.cr"   , self.pfv.cr   ),
             ("o", "pfv_out.msr"  , self.pfv.msr  ),
             ("o", "pfv_out.lr"   , self.pfv.lr   ),
@@ -242,7 +252,7 @@ class MicrowattWrapper(Elaboratable):
         )
 
         m.d.comb += [
-            Assume(~dmi_req),
+            Assume(~dmi.req),
             Assume(~terminated),
         ]
 
@@ -301,7 +311,7 @@ class MicrowattCore(PowerFVCore):
         super().add_build_arguments(parser)
         group = parser.add_argument_group(title="microwatt options")
         group.add_argument(
-            "--src-dir", type=pathlib.Path, default=pathlib.Path("./microwatt-src"),
+            "--src-dir", type=pathlib.Path, default=pathlib.Path("./src"),
             help="microwatt directory (default: %(default)s)")
         group.add_argument(
             "--ghdl-opts", type=str, default="--std=08",
@@ -316,13 +326,5 @@ class MicrowattCore(PowerFVCore):
             platform.add_file(filename, contents)
 
         top_filename = "top-powerfv.vhdl"
-        top_contents = wrapper._render_toplevel()
+        top_contents = wrapper._toplevel_src
         platform.add_file(top_filename, top_contents)
-
-
-class MicrowattSession(PowerFVSession, core_cls=MicrowattCore):
-    pass
-
-
-if __name__ == "__main__":
-    MicrowattSession().main()

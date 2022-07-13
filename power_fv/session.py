@@ -37,8 +37,8 @@ class PowerFVSession:
                             .format(core_cls))
         cls.core_cls = core_cls
 
-    def __init__(self):
-        self.parser     = _ArgumentParser(add_help=False)
+    def __init__(self, prog=None):
+        self.parser     = _ArgumentParser(prog=prog, add_help=False)
         self.subparsers = self.parser.add_subparsers(help="commands")
         self.namespace  = dict()
 
@@ -50,7 +50,7 @@ class PowerFVSession:
         self.add_exit_subparser()
 
     def main(self):
-        parser = argparse.ArgumentParser()
+        parser = argparse.ArgumentParser(prog=self.parser.prog)
         group  = parser.add_mutually_exclusive_group()
         group.add_argument(
             "-i", dest="interact", action="store_true",
@@ -60,7 +60,10 @@ class PowerFVSession:
             help="run commands from CMDFILE")
 
         args = parser.parse_args()
-        self._loop(args)
+        try:
+            self._loop(args)
+        except EOFError:
+            pass
 
     def _loop(self, args):
         if args.cmdfile is None:

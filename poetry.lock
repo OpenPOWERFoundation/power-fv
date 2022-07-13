@@ -1,16 +1,16 @@
 [[package]]
 name = "amaranth"
-version = "0.4.dev11+g85d56a7"
+version = "0.4.dev21+gdb49294"
 description = "Amaranth hardware definition language"
 category = "main"
 optional = false
-python-versions = "~=3.6"
+python-versions = "~=3.7"
 develop = false
 
 [package.dependencies]
 importlib-resources = {version = "*", markers = "python_version < \"3.9\""}
 Jinja2 = ">=3.0,<4.0"
-pyvcd = ">=0.2.2,<0.3.0"
+pyvcd = ">=0.2.2,<0.4"
 
 [package.extras]
 builtin-yosys = ["amaranth-yosys (>=0.10)"]
@@ -20,11 +20,29 @@ remote-build = ["paramiko (>=2.7,<3.0)"]
 type = "git"
 url = "https://github.com/amaranth-lang/amaranth.git"
 reference = "main"
-resolved_reference = "85d56a74a595bac5b4423ace5462bc7452cfacbb"
+resolved_reference = "db49294cf722e9463666bd06f81a86f930b8707c"
+
+[[package]]
+name = "amaranth-soc"
+version = "0.1.dev49+g217d4ea"
+description = "System on Chip toolkit for Amaranth HDL"
+category = "main"
+optional = false
+python-versions = "*"
+develop = false
+
+[package.dependencies]
+amaranth = ">=0.2,<0.5"
+
+[package.source]
+type = "git"
+url = "https://github.com/amaranth-lang/amaranth-soc.git"
+reference = "main"
+resolved_reference = "217d4ea76ad3b3bbf146980d168bc7b3b9d95a18"
 
 [[package]]
 name = "importlib-resources"
-version = "5.6.0"
+version = "5.8.0"
 description = "Read resources from Python packages"
 category = "main"
 optional = false
@@ -61,7 +79,7 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "pyvcd"
-version = "0.2.4"
+version = "0.3.0"
 description = "Python VCD file support"
 category = "main"
 optional = false
@@ -69,26 +87,27 @@ python-versions = ">=3.6"
 
 [[package]]
 name = "zipp"
-version = "3.7.0"
+version = "3.8.0"
 description = "Backport of pathlib-compatible object wrapper for zip files"
 category = "main"
 optional = false
 python-versions = ">=3.7"
 
 [package.extras]
-docs = ["sphinx", "jaraco.packaging (>=8.2)", "rst.linker (>=1.9)"]
-testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-cov", "pytest-enabler (>=1.0.1)", "jaraco.itertools", "func-timeout", "pytest-black (>=0.3.7)", "pytest-mypy"]
+docs = ["sphinx", "jaraco.packaging (>=9)", "rst.linker (>=1.9)"]
+testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-cov", "pytest-enabler (>=1.0.1)", "jaraco.itertools", "func-timeout", "pytest-black (>=0.3.7)", "pytest-mypy (>=0.9.1)"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "8fbc350384d13e8a190df593335a502436e6b99dbf5aafefa5167db8c09206d6"
+content-hash = "1c881976fce28a8b6924ba8df05bfa648b0c6098b5489df50523e968a6bfce73"
 
 [metadata.files]
 amaranth = []
+amaranth-soc = []
 importlib-resources = [
-    {file = "importlib_resources-5.6.0-py3-none-any.whl", hash = "sha256:a9dd72f6cc106aeb50f6e66b86b69b454766dd6e39b69ac68450253058706bcc"},
-    {file = "importlib_resources-5.6.0.tar.gz", hash = "sha256:1b93238cbf23b4cde34240dd8321d99e9bf2eb4bc91c0c99b2886283e7baad85"},
+    {file = "importlib_resources-5.8.0-py3-none-any.whl", hash = "sha256:7952325ffd516c05a8ad0858c74dff2c3343f136fe66a6002b2623dd1d43f223"},
+    {file = "importlib_resources-5.8.0.tar.gz", hash = "sha256:568c9f16cb204f9decc8d6d24a572eeea27dacbb4cee9e6b03a8025736769751"},
 ]
 jinja2 = [
     {file = "Jinja2-3.0.3-py3-none-any.whl", hash = "sha256:077ce6014f7b40d03b47d1f1ca4b0fc8328a692bd284016f806ed0eaca390ad8"},
@@ -137,10 +156,10 @@ markupsafe = [
     {file = "MarkupSafe-2.1.1.tar.gz", hash = "sha256:7f91197cc9e48f989d12e4e6fbc46495c446636dfc81b9ccf50bb0ec74b91d4b"},
 ]
 pyvcd = [
-    {file = "pyvcd-0.2.4-py2.py3-none-any.whl", hash = "sha256:c40b0e586a74cddaf82e6989f0168ae7f9b4f182a9a106a0da9df0d11a9c6b3b"},
-    {file = "pyvcd-0.2.4.tar.gz", hash = "sha256:071e51a8362908ad5a2a12f078185639b98b20b653a56f01679de169d0fa425d"},
+    {file = "pyvcd-0.3.0-py2.py3-none-any.whl", hash = "sha256:971dfe5a3e68663115c6edf3f0b611ff9e8427513db16281eb4516ebcd65a336"},
+    {file = "pyvcd-0.3.0.tar.gz", hash = "sha256:ec4d9198bd20f9e07d78f6558ff8bcd45b172ee332e7e8a4588727eeb6a362bc"},
 ]
 zipp = [
-    {file = "zipp-3.7.0-py3-none-any.whl", hash = "sha256:b47250dd24f92b7dd6a0a8fc5244da14608f3ca90a5efcd37a3b1642fac9a375"},
-    {file = "zipp-3.7.0.tar.gz", hash = "sha256:9f50f446828eb9d45b267433fd3e9da8d801f614129124863f9c51ebceafb87d"},
+    {file = "zipp-3.8.0-py3-none-any.whl", hash = "sha256:c4f6e5bbf48e74f7a38e7cc5b0480ff42b0ae5178957d564d18932525d5cf099"},
+    {file = "zipp-3.8.0.tar.gz", hash = "sha256:56bf8aadb83c24db6c4b577e13de374ccfb67da2078beba1d037c17980bf43ad"},
 ]

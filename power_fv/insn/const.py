@@ -33,6 +33,45 @@ class CREQV   (WordInsn): _fields = (f.PO(19), f.BT(), f.BA(), f.BB(), f.XO_XL(2
 class CRORC   (WordInsn): _fields = (f.PO(19), f.BT(), f.BA(), f.BB(), f.XO_XL(417))
 class MCRF    (WordInsn): _fields = (f.PO(19), f.BF(), f.BFA(),        f.XO_XL(  0))
 
+# Load
+
+class LBZ     (WordInsn): _fields = (f.PO(34), f.RT(), f.RA(), f.D())
+class LBZX    (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.XO_X( 87))
+class LBZU    (WordInsn): _fields = (f.PO(35), f.RT(), f.RA(), f.D())
+class LBZUX   (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.XO_X(119))
+class LHZ     (WordInsn): _fields = (f.PO(40), f.RT(), f.RA(), f.D())
+class LHZX    (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.XO_X(279))
+class LHZU    (WordInsn): _fields = (f.PO(41), f.RT(), f.RA(), f.D())
+class LHZUX   (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.XO_X(311))
+class LHA     (WordInsn): _fields = (f.PO(42), f.RT(), f.RA(), f.D())
+class LHAX    (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.XO_X(343))
+class LHAU    (WordInsn): _fields = (f.PO(43), f.RT(), f.RA(), f.D())
+class LHAUX   (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.XO_X(375))
+class LWZ     (WordInsn): _fields = (f.PO(32), f.RT(), f.RA(), f.D())
+class LWZX    (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.XO_X( 23))
+class LWZU    (WordInsn): _fields = (f.PO(33), f.RT(), f.RA(), f.D())
+class LWZUX   (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.XO_X( 55))
+
+class LWBRX   (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.XO_X(534))
+
+# Store
+
+class STB     (WordInsn): _fields = (f.PO(38), f.RS(), f.RA(), f.D())
+class STBX    (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.RB(), f.XO_X(215))
+class STBU    (WordInsn): _fields = (f.PO(39), f.RS(), f.RA(), f.D())
+class STBUX   (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.RB(), f.XO_X(247))
+class STH     (WordInsn): _fields = (f.PO(44), f.RS(), f.RA(), f.D())
+class STHX    (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.RB(), f.XO_X(407))
+class STHU    (WordInsn): _fields = (f.PO(45), f.RS(), f.RA(), f.D())
+class STHUX   (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.RB(), f.XO_X(439))
+class STW     (WordInsn): _fields = (f.PO(36), f.RS(), f.RA(), f.D())
+class STWX    (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.RB(), f.XO_X(151))
+class STWU    (WordInsn): _fields = (f.PO(37), f.RS(), f.RA(), f.D())
+class STWUX   (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.RB(), f.XO_X(183))
+
+class STHBRX  (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.RB(), f.XO_X(918))
+class STWBRX  (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.RB(), f.XO_X(662))
+
 # Add / Subtract From
 
 class ADDI    (WordInsn): _fields = (f.PO(14), f.RT(), f.RA(), f.SI())

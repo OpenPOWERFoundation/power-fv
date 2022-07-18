@@ -17,7 +17,7 @@ git clone git@git.openpower.foundation:jfng/microwatt -b powerfv src
 ```
 poetry shell
 
-python microwatt.py -h
+python -m microwatt -h
 
 exit
 ```
@@ -25,11 +25,11 @@ exit
 ### Run commands from a file
 
 ```
-python microwatt.py -c checks.pfv
+python -m microwatt -c checks.pfv
 ```
 
 ### Run commands interactively
 
 ```
-python microwatt.py -i
+python -m microwatt -i
 ```

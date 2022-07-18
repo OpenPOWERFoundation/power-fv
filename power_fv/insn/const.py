@@ -197,6 +197,11 @@ class CDTBCD  (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(),         f.XO_X(28
 class CBCDTD  (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(),         f.XO_X(314))
 class ADDG6S  (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.XO(74))
 
+# Byte-Reverse
+
+class BRH     (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(),         f.XO_X(219))
+class BRW     (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(),         f.XO_X(155))
+
 # Move To/From System Register
 
 class MTMSR   (WordInsn): _fields = (f.PO(31), f.RS(), f.L_X15(), f.XO_X(146))

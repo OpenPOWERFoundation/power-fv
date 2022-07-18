@@ -51,10 +51,6 @@ class BranchSpec(InsnSpec, Elaboratable):
         else:
             m.d.comb += self.pfv.intr.eq(0)
 
-        # Read MSR.SF
-
-        m.d.comb += self.pfv.msr.r_mask.sf.eq(1)
-
         # Is this branch taken ?
 
         taken    = Signal()

@@ -1,5 +1,6 @@
 from .addsub    import *
 from .branch    import *
+from .syscall   import *
 from .loadstore import *
 from .cr        import *
 from .compare   import *

@@ -21,6 +21,11 @@ class BCCTRL  (WordInsn): _fields = (f.PO(19), f.BO(), f.BI(), f.BH(), f.XO_XL(5
 class BCTAR   (WordInsn): _fields = (f.PO(19), f.BO(), f.BI(), f.BH(), f.XO_XL(560), f.LK(0))
 class BCTARL  (WordInsn): _fields = (f.PO(19), f.BO(), f.BI(), f.BH(), f.XO_XL(560), f.LK(1))
 
+# System Call
+
+class SC      (WordInsn): _fields = (f.PO(17), f.LEV(), f.SC_30(1))
+class SCV     (WordInsn): _fields = (f.PO(17), f.LEV(), f.SC_30(0), f.SC_31(1))
+
 # Condition Register
 
 class CRAND   (WordInsn): _fields = (f.PO(19), f.BT(), f.BA(), f.BB(), f.XO_XL(257))

@@ -191,6 +191,12 @@ class SRAWI_  (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.SH(), f.XO_X(82
 class SRAW    (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.RB(), f.XO_X(792), f.Rc(0))
 class SRAW_   (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.RB(), f.XO_X(792), f.Rc(1))
 
+# BCD Assist
+
+class CDTBCD  (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(),         f.XO_X(282))
+class CBCDTD  (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(),         f.XO_X(314))
+class ADDG6S  (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.XO(74))
+
 # Move To/From System Register
 
 class MTMSR   (WordInsn): _fields = (f.PO(31), f.RS(), f.L_X15(), f.XO_X(146))

@@ -5,5 +5,6 @@ from .cr        import *
 from .compare   import *
 from .logical   import *
 from .rotate    import *
+from .bcd       import *
 from .msr       import *
 from .spr       import *

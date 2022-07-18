@@ -36,7 +36,19 @@ class CRNOR   (WordInsn): _fields = (f.PO(19), f.BT(), f.BA(), f.BB(), f.XO_XL( 
 class CRANDC  (WordInsn): _fields = (f.PO(19), f.BT(), f.BA(), f.BB(), f.XO_XL(129))
 class CREQV   (WordInsn): _fields = (f.PO(19), f.BT(), f.BA(), f.BB(), f.XO_XL(289))
 class CRORC   (WordInsn): _fields = (f.PO(19), f.BT(), f.BA(), f.BB(), f.XO_XL(417))
-class MCRF    (WordInsn): _fields = (f.PO(19), f.BF(), f.BFA(),        f.XO_XL(  0))
+
+class MCRF    (WordInsn): _fields = (f.PO(19), f.BF(), f.BFA(),              f.XO_XL (  0))
+class MCRXRX  (WordInsn): _fields = (f.PO(31), f.BF(),                       f.XO_X  (576))
+class MTOCRF  (WordInsn): _fields = (f.PO(31), f.RS(), f.XFX_11(1), f.FXM(), f.XO_XFX(144))
+class MTCRF   (WordInsn): _fields = (f.PO(31), f.RS(), f.XFX_11(0), f.FXM(), f.XO_XFX(144))
+class MFOCRF  (WordInsn): _fields = (f.PO(31), f.RT(), f.XFX_11(1), f.FXM(), f.XO_XFX( 19))
+class MFCR    (WordInsn): _fields = (f.PO(31), f.RT(), f.XFX_11(0),          f.XO_XFX( 19))
+
+class SETB    (WordInsn): _fields = (f.PO(31), f.RT(), f.BFA(), f.XO_X(128))
+class SETBC   (WordInsn): _fields = (f.PO(31), f.RT(), f.BI(),  f.XO_X(384))
+class SETBCR  (WordInsn): _fields = (f.PO(31), f.RT(), f.BI(),  f.XO_X(416))
+class SETNBC  (WordInsn): _fields = (f.PO(31), f.RT(), f.BI(),  f.XO_X(448))
+class SETNBCR (WordInsn): _fields = (f.PO(31), f.RT(), f.BI(),  f.XO_X(480))
 
 # Load
 

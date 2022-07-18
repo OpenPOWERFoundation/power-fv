@@ -4,6 +4,7 @@ from .syscall   import *
 from .loadstore import *
 from .cr        import *
 from .compare   import *
+from .trap      import *
 from .logical   import *
 from .rotate    import *
 from .bcd       import *

@@ -140,6 +140,11 @@ class CMPL    (WordInsn): _fields = (f.PO(31), f.BF(), f.L_X10(), f.RA(), f.RB()
 class CMPRB   (WordInsn): _fields = (f.PO(31), f.BF(), f.L_X10(), f.RA(), f.RB(), f.XO_X(192))
 class CMPEQB  (WordInsn): _fields = (f.PO(31), f.BF(), f.L_X10(), f.RA(), f.RB(), f.XO_X(224))
 
+# Trap
+
+class TWI     (WordInsn): _fields = (f.PO( 3), f.TO(), f.RA(), f.SI())
+class TW      (WordInsn): _fields = (f.PO(31), f.TO(), f.RA(), f.RB(), f.XO_X(4))
+
 # Logical
 
 class ANDI_   (WordInsn): _fields = (f.PO(28), f.RS(), f.RA(), f.UI())

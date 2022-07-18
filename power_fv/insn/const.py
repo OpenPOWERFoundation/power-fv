@@ -173,6 +173,24 @@ class POPCNTB (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(),         f.XO_X(12
 class POPCNTW (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(),         f.XO_X(378))
 class PRTYW   (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(),         f.XO_X(154))
 
+# Rotate / Shift
+
+class RLWINM  (WordInsn): _fields = (f.PO(21), f.RS(), f.RA(), f.SH(), f.MB(), f.ME(), f.Rc(0))
+class RLWINM_ (WordInsn): _fields = (f.PO(21), f.RS(), f.RA(), f.SH(), f.MB(), f.ME(), f.Rc(1))
+class RLWNM   (WordInsn): _fields = (f.PO(23), f.RS(), f.RA(), f.RB(), f.MB(), f.ME(), f.Rc(0))
+class RLWNM_  (WordInsn): _fields = (f.PO(23), f.RS(), f.RA(), f.RB(), f.MB(), f.ME(), f.Rc(1))
+class RLWIMI  (WordInsn): _fields = (f.PO(20), f.RS(), f.RA(), f.SH(), f.MB(), f.ME(), f.Rc(0))
+class RLWIMI_ (WordInsn): _fields = (f.PO(20), f.RS(), f.RA(), f.SH(), f.MB(), f.ME(), f.Rc(1))
+
+class SLW     (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.RB(), f.XO_X( 24), f.Rc(0))
+class SLW_    (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.RB(), f.XO_X( 24), f.Rc(1))
+class SRW     (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.RB(), f.XO_X(536), f.Rc(0))
+class SRW_    (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.RB(), f.XO_X(536), f.Rc(1))
+class SRAWI   (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.SH(), f.XO_X(824), f.Rc(0))
+class SRAWI_  (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.SH(), f.XO_X(824), f.Rc(1))
+class SRAW    (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.RB(), f.XO_X(792), f.Rc(0))
+class SRAW_   (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.RB(), f.XO_X(792), f.Rc(1))
+
 # Move To/From System Register
 
 class MTMSR   (WordInsn): _fields = (f.PO(31), f.RS(), f.L_X15(), f.XO_X(146))

@@ -4,5 +4,6 @@ from .loadstore import *
 from .cr        import *
 from .compare   import *
 from .logical   import *
+from .rotate    import *
 from .msr       import *
 from .spr       import *

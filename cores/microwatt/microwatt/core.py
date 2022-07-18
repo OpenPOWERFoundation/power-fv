@@ -236,6 +236,7 @@ class MicrowattWrapper(Elaboratable):
             ("o", "pfv_out.intr" , self.pfv.intr ),
             ("o", "pfv_out.cia"  , self.pfv.cia  ),
             ("o", "pfv_out.nia"  , self.pfv.nia  ),
+            ("o", "pfv_out.skip" , self.pfv.skip ),
             ("o", "pfv_out.ra"   , self.pfv.ra   ),
             ("o", "pfv_out.rb"   , self.pfv.rb   ),
             ("o", "pfv_out.rs"   , self.pfv.rs   ),

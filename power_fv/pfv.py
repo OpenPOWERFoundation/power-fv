@@ -59,6 +59,7 @@ class Interface(Record):
             ("intr" , unsigned( 1)),
             ("cia"  , unsigned(64)),
             ("nia"  , unsigned(64)),
+            ("skip" , unsigned( 1)),
 
             ("ra", gprf_port_layout()),
             ("rb", gprf_port_layout()),

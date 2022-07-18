@@ -49,6 +49,12 @@ class DataStorageTestbench(Elaboratable, metaclass=ABCMeta):
 
         m.d.comb += storage.connect(dut)
 
+        with m.If(dut.pfv.stb & dut.pfv.skip):
+            m.d.comb += [
+                Assert(~dut.pfv.mem.r_mask.any()),
+                Assert(~dut.pfv.mem.w_mask.any()),
+            ]
+
         with m.If(dut.pfv.stb & (dut.pfv.mem.addr == storage.addr)):
             for i, byte_written in enumerate(written):
                 byte_shadow = shadow[i*8:i*8+8]

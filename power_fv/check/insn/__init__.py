@@ -58,6 +58,7 @@ class InsnTestbench(Elaboratable):
             m.d.comb += [
                 Assume(dut.pfv.stb),
                 Assume(dut.pfv.insn == spec.pfv.insn),
+                Assume(~dut.pfv.skip),
                 Assert(dut.pfv.intr == spec.pfv.intr),
             ]
 

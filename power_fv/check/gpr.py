@@ -66,7 +66,7 @@ class GPRTestbench(Elaboratable):
             m.d.comb += gpr_conflict.curr.eq(1)
             m.d.sync += gpr_conflict.prev.eq(dut.pfv.order < spec_order)
 
-        with m.If(dut.pfv.stb & (dut.pfv.order < spec_order)):
+        with m.If(dut.pfv.stb & (dut.pfv.order < spec_order) & ~dut.pfv.skip):
             with m.If(gpr_write.any()):
                 m.d.sync += gpr_written.prev.eq(1)
                 with m.If(gpr_write.ra):
@@ -82,6 +82,7 @@ class GPRTestbench(Elaboratable):
             m.d.comb += [
                 Assume(dut.pfv.stb),
                 Assume(dut.pfv.order == spec_order),
+                Assume(~dut.pfv.skip),
                 Assert(~gpr_conflict.curr),
                 Assert(~gpr_conflict.prev),
             ]

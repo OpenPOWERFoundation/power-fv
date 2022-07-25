@@ -51,10 +51,11 @@ class Interface(Record):
         Instruction strobe. Asserted when the processor retires an instruction. Other signals are
         only valid when ``stb`` is asserted.
     """
-    def __init__(self, *, mem_aligned=False, illegal_insn_heai=False,
+    def __init__(self, *, mem_aligned=False, illegal_insn_heai=False, muldiv_altops=False,
                  name=None, src_loc_at=0):
         self.mem_aligned       = bool(mem_aligned)
         self.illegal_insn_heai = bool(illegal_insn_heai)
+        self.muldiv_altops     = bool(muldiv_altops)
 
         layout = [
             ("stb"  , unsigned( 1)),

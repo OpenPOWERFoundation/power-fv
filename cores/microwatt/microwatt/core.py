@@ -102,6 +102,7 @@ class MicrowattWrapper(Elaboratable):
                     HAS_BTC             => {has_btc},
                     HAS_SHORT_MULT      => false,
                     HAS_POWERFV         => true,
+                    HAS_ALTOPS          => true,
                     LOG_LENGTH          => 0,
                     ICACHE_NUM_LINES    => {icache_num_lines},
                     ICACHE_NUM_WAYS     => {icache_num_ways},
@@ -133,7 +134,8 @@ class MicrowattWrapper(Elaboratable):
         end architecture behave;
     """)
 
-        self.pfv     = pfv.Interface(mem_aligned=False, illegal_insn_heai=False)
+    def __init__(self, *, bus_fairness=False, **kwargs):
+        self.pfv     = pfv.Interface(mem_aligned=False, illegal_insn_heai=False, muldiv_altops=True)
         self.wb_insn = wishbone.Interface(addr_width=29, data_width=64, granularity=8,
                                           features=("stall",))
         self.wb_data = wishbone.Interface(addr_width=29, data_width=64, granularity=8,

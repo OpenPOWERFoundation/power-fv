@@ -1,4 +1,5 @@
 from .addsub    import *
+from .muldiv    import *
 from .branch    import *
 from .syscall   import *
 from .loadstore import *

@@ -143,6 +143,38 @@ class NEG_    (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.OE(0), 
 class NEGO    (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.OE(1), f.XO(104), f.Rc(0))
 class NEGO_   (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.OE(1), f.XO(104), f.Rc(1))
 
+# Multiply / Divide / Modulo
+
+class MULLI   (WordInsn): _fields = (f.PO( 7), f.RT(), f.RA(), f.SI())
+class MULLW   (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.OE(0), f.XO(235), f.Rc(0))
+class MULLW_  (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.OE(0), f.XO(235), f.Rc(1))
+class MULLWO  (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.OE(1), f.XO(235), f.Rc(0))
+class MULLWO_ (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.OE(1), f.XO(235), f.Rc(1))
+class MULHW   (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(),          f.XO( 75), f.Rc(0))
+class MULHW_  (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(),          f.XO( 75), f.Rc(1))
+class MULHWU  (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(),          f.XO( 11), f.Rc(0))
+class MULHWU_ (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(),          f.XO( 11), f.Rc(1))
+
+class DIVW    (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.OE(0), f.XO(491), f.Rc(0))
+class DIVW_   (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.OE(0), f.XO(491), f.Rc(1))
+class DIVWO   (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.OE(1), f.XO(491), f.Rc(0))
+class DIVWO_  (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.OE(1), f.XO(491), f.Rc(1))
+class DIVWU   (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.OE(0), f.XO(459), f.Rc(0))
+class DIVWU_  (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.OE(0), f.XO(459), f.Rc(1))
+class DIVWUO  (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.OE(1), f.XO(459), f.Rc(0))
+class DIVWUO_ (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.OE(1), f.XO(459), f.Rc(1))
+class DIVWE   (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.OE(0), f.XO(427), f.Rc(0))
+class DIVWE_  (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.OE(0), f.XO(427), f.Rc(1))
+class DIVWEO  (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.OE(1), f.XO(427), f.Rc(0))
+class DIVWEO_ (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.OE(1), f.XO(427), f.Rc(1))
+class DIVWEU  (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.OE(0), f.XO(395), f.Rc(0))
+class DIVWEU_ (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.OE(0), f.XO(395), f.Rc(1))
+class DIVWEUO (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.OE(1), f.XO(395), f.Rc(0))
+class DIVWEUO_(WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.OE(1), f.XO(395), f.Rc(1))
+
+class MODSW   (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.XO_X(779))
+class MODUW   (WordInsn): _fields = (f.PO(31), f.RT(), f.RA(), f.RB(), f.XO_X(267))
+
 # Compare
 
 class CMPI    (WordInsn): _fields = (f.PO(11), f.BF(), f.L_D10(), f.RA(), f.SI())

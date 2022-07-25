@@ -40,12 +40,11 @@ class PowerFVSession:
     def __init__(self, prog=None):
         self.parser     = _ArgumentParser(prog=prog, add_help=False)
         self.subparsers = self.parser.add_subparsers(help="commands")
-        self.namespace  = dict()
+        self._checks    = dict()
 
         self.add_help_subparser()
         self.add_check_subparser()
         self.add_dump_subparser()
-        self.add_expand_subparser()
         self.add_build_subparser()
         self.add_exit_subparser()
 
@@ -102,13 +101,13 @@ class PowerFVSession:
         PowerFVCheck .add_check_arguments(parser)
         self.core_cls.add_check_arguments(parser)
 
+        parser.add_argument(
+            "--exclude", type=str, default="",
+            help="exclude a comma-separated list of checks from the selection")
+
     def add_dump_subparser(self):
         parser = self.subparsers.add_parser("dump", help="inspect check parameters")
         parser.set_defaults(_cmd=self.dump)
-
-    def add_expand_subparser(self):
-        parser = self.subparsers.add_parser("expand", help="expand check parameters")
-        parser.set_defaults(_cmd=self.expand)
 
     def add_build_subparser(self):
         parser = self.subparsers.add_parser("build", help="execute the build plan")
@@ -130,23 +129,20 @@ class PowerFVSession:
     def help(self, **kwargs):
         self.parser.print_help()
 
-    def check(self, *, name, **kwargs):
-        self.namespace[name] = dict(**kwargs)
+    def check(self, *, name, exclude, **kwargs):
+        exclude    = [f"{name}:{subname}" for subname in exclude.split(",")]
+        matches    = list(PowerFVCheck.find(name))
+        new_checks = dict()
+
+        for check_name, check_cls in matches:
+            if check_name in exclude:
+                continue
+            new_checks[check_name] = dict(**kwargs)
+
+        self._checks.update(new_checks)
 
     def dump(self, **kwargs):
-        pprint(self.namespace, sort_dicts=False)
-
-    def expand(self, **kwargs):
-        new_namespace = dict()
-
-        for check_name, check_args in self.namespace.items():
-            matches = list(PowerFVCheck.find(*check_name.split(":")))
-            if not matches:
-                raise NameError("Unknown check {!r}".format(check_name))
-            for match_name, match_cls in matches:
-                new_namespace[":".join(match_name)] = check_args
-
-        self.namespace = new_namespace
+        pprint(self._checks, sort_dicts=False)
 
     @staticmethod
     def _build_check(core_cls, check_name, check_args, build_args):
@@ -156,12 +152,10 @@ class PowerFVSession:
         check.build(**build_args)
 
     def build(self, *, jobs, **kwargs):
-        self.expand()
-
         map_func = PowerFVSession._build_check
         map_args = []
 
-        for check_name, check_args in self.namespace.items():
+        for check_name, check_args in self._checks.items():
             map_args.append((self.core_cls, check_name, check_args, kwargs))
 
         with multiprocessing.Pool(jobs) as pool:

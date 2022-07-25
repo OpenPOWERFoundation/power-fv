@@ -23,13 +23,14 @@ class PowerFVCheckMeta(ABCMeta):
         return cls
 
     @classmethod
-    def find(cls, *name):
+    def find(cls, name, *, sep=":"):
+        name = tuple(name.split(sep))
         for check_name, check_cls in cls.all_checks.items():
             assert isinstance(check_name, tuple)
             if len(name) > len(check_name):
                 continue
             if name == check_name[:len(name)]:
-                yield check_name, check_cls
+                yield sep.join(check_name), check_cls
 
 
 class PowerFVCheck(metaclass=PowerFVCheckMeta):

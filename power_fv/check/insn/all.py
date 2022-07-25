@@ -8,8 +8,6 @@ from .trap      import *
 from .logical   import *
 from .rotate    import *
 from .bcd       import *
+from .byterev   import *
 from .msr       import *
 from .spr       import *
-
-# TODO: add a --exclude= argument to the 'check' command
-# from .byterev   import *

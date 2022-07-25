@@ -6,7 +6,7 @@ from power_fv.check.insn import InsnCheck
 __all__ = [
     "CRAND", "CROR", "CRNAND", "CRXOR", "CRNOR", "CRANDC", "CREQV", "CRORC",
     "MCRF", "MCRXRX", "MTCRF", "MFOCRF", "MFCR",
-    "SETB", #"SETBC", "SETBCR", "SETNBC", "SETNBCR",
+    "SETB", "SETBC", "SETBCR", "SETNBC", "SETNBCR",
 ]
 
 
@@ -27,9 +27,7 @@ class MFOCRF (InsnCheck, spec_cls=CRMoveSpec, insn_cls=const.MFOCRF): pass
 class MFCR   (InsnCheck, spec_cls=CRMoveSpec, insn_cls=const.MFCR  ): pass
 
 class SETB   (InsnCheck, spec_cls=CRMoveSpec, insn_cls=const.SETB   ): pass
-
-# TODO: add a --exclude= argument to the 'check' command
-# class SETBC  (InsnCheck, spec_cls=CRMoveSpec, insn_cls=const.SETBC  ): pass
-# class SETBCR (InsnCheck, spec_cls=CRMoveSpec, insn_cls=const.SETBCR ): pass
-# class SETNBC (InsnCheck, spec_cls=CRMoveSpec, insn_cls=const.SETNBC ): pass
-# class SETNBCR(InsnCheck, spec_cls=CRMoveSpec, insn_cls=const.SETNBCR): pass
+class SETBC  (InsnCheck, spec_cls=CRMoveSpec, insn_cls=const.SETBC  ): pass
+class SETBCR (InsnCheck, spec_cls=CRMoveSpec, insn_cls=const.SETBCR ): pass
+class SETNBC (InsnCheck, spec_cls=CRMoveSpec, insn_cls=const.SETNBC ): pass
+class SETNBCR(InsnCheck, spec_cls=CRMoveSpec, insn_cls=const.SETNBCR): pass

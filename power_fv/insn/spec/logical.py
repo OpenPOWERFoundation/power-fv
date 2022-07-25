@@ -28,10 +28,6 @@ class _CountTrailingZeros(Elaboratable):
 
 
 class LogicalSpec(InsnSpec, Elaboratable):
-    def __init__(self, insn):
-        self.pfv  = pfv.Interface()
-        self.insn = insn
-
     def elaborate(self, platform):
         m = Module()
 

@@ -134,7 +134,7 @@ class MicrowattWrapper(Elaboratable):
     """)
 
     def __init__(self, **kwargs):
-        self.pfv     = pfv.Interface()
+        self.pfv     = pfv.Interface(mem_aligned=False)
         self.wb_insn = wishbone.Interface(addr_width=29, data_width=64, granularity=8,
                                           features=("stall",))
         self.wb_data = wishbone.Interface(addr_width=29, data_width=64, granularity=8,

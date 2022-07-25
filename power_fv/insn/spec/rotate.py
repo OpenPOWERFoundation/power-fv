@@ -11,10 +11,6 @@ __all__ = ["RotateShiftSpec"]
 
 
 class RotateShiftSpec(InsnSpec, Elaboratable):
-    def __init__(self, insn):
-        self.pfv  = pfv.Interface()
-        self.insn = insn
-
     def elaborate(self, platform):
         m = Module()
 

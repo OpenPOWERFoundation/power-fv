@@ -12,11 +12,6 @@ __all__ = ["LoadStoreSpec"]
 
 
 class LoadStoreSpec(InsnSpec, Elaboratable):
-    def __init__(self, insn, *, dword_aligned=False):
-        self.pfv  = pfv.Interface()
-        self.insn = insn
-        self.dword_aligned = dword_aligned
-
     def elaborate(self, platform):
         m = Module()
 
@@ -79,8 +74,8 @@ class LoadStoreSpec(InsnSpec, Elaboratable):
 
         m.d.comb += ea.eq(iea(ea_base + ea_offset, self.pfv.msr.r_data.sf))
 
-        # If `dword_aligned` is set, `pfv.mem.addr` points to the dword containing EA.
-        # If `dword_aligned` is unset, `pfv.mem.addr` is equal to EA.
+        # If `pfv.mem_aligned` is set, `pfv.mem.addr` points to the dword containing EA.
+        # If `pfv.mem_aligned` is unset, `pfv.mem.addr` is equal to EA.
 
         byte_offset = Signal(3)
         half_offset = Signal(2)
@@ -88,7 +83,7 @@ class LoadStoreSpec(InsnSpec, Elaboratable):
 
         m.d.comb += self.pfv.mem.addr[3:].eq(ea[3:])
 
-        if self.dword_aligned:
+        if self.pfv.mem_aligned:
             m.d.comb += [
                 self.pfv.mem.addr[:3].eq(0),
                 byte_offset.eq(ea[:3]),

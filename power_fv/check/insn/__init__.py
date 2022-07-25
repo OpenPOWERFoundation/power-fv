@@ -28,7 +28,7 @@ class InsnCheck(PowerFVCheck, metaclass=InsnCheckMeta):
     def __init__(self, *, depth, skip, core, **kwargs):
         super().__init__(depth=depth, skip=skip, core=core, **kwargs)
         self.insn = self.insn_cls()
-        self.spec = self.spec_cls(self.insn)
+        self.spec = self.spec_cls(self.insn, mem_aligned=self.dut.pfv.mem_aligned)
 
     def testbench(self):
         return InsnTestbench(self)

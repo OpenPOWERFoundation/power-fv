@@ -62,10 +62,8 @@ class InsnTestbench(Elaboratable):
                 Assert(dut.pfv.intr == spec.pfv.intr),
             ]
 
-        with m.If(t_post.zero & ~spec.pfv.intr):
-            m.d.comb += [
-                Assert(dut.pfv.nia == spec.pfv.nia),
-            ]
+        with m.If(t_post.zero):
+            m.d.comb += Assert(dut.pfv.nia == spec.pfv.nia)
 
         m.submodules.ra = ra = _GPRFileTest(self.check, port="ra")
         m.submodules.rb = rb = _GPRFileTest(self.check, port="rb")
@@ -79,7 +77,7 @@ class InsnTestbench(Elaboratable):
             spec.pfv.rt.r_data.eq(dut.pfv.rt.r_data),
         ]
 
-        with m.If(t_post.zero & ~spec.pfv.intr):
+        with m.If(t_post.zero):
             m.d.comb += [
                 Assert(ra.valid.all()),
                 Assert(rb.valid.all()),
@@ -91,7 +89,7 @@ class InsnTestbench(Elaboratable):
 
         m.d.comb += spec.pfv.mem.r_data.eq(dut.pfv.mem.r_data)
 
-        with m.If(t_post.zero & ~spec.pfv.intr):
+        with m.If(t_post.zero):
             m.d.comb += Assert(mem.valid.all())
 
         m.submodules.cr   = cr   = _SysRegTest(self.check, reg="cr"  )
@@ -114,7 +112,7 @@ class InsnTestbench(Elaboratable):
             spec.pfv.srr1.r_data.eq(dut.pfv.srr1.r_data),
         ]
 
-        with m.If(t_post.zero & ~spec.pfv.intr):
+        with m.If(t_post.zero):
             m.d.comb += [
                 Assert(cr  .valid.all()),
                 Assert(msr .valid.all()),

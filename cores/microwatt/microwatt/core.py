@@ -133,8 +133,7 @@ class MicrowattWrapper(Elaboratable):
         end architecture behave;
     """)
 
-    def __init__(self, **kwargs):
-        self.pfv     = pfv.Interface(mem_aligned=False)
+        self.pfv     = pfv.Interface(mem_aligned=False, illegal_insn_heai=False)
         self.wb_insn = wishbone.Interface(addr_width=29, data_width=64, granularity=8,
                                           features=("stall",))
         self.wb_data = wishbone.Interface(addr_width=29, data_width=64, granularity=8,
@@ -256,6 +255,14 @@ class MicrowattWrapper(Elaboratable):
             Assume(~dmi.req),
             Assume(~terminated),
         ]
+        with m.If(self.pfv.stb):
+            m.d.comb += [
+                # no decrementer interrupts
+                Assume(self.pfv.msr.w_mask.ee.implies(~self.pfv.msr.w_data.ee)),
+                # no trace interrupts
+                Assume(self.pfv.msr.w_mask.te[0].implies(~self.pfv.msr.w_data.te[0])),
+                Assume(self.pfv.msr.w_mask.te[1].implies(~self.pfv.msr.w_data.te[1])),
+            ]
 
         return m
 

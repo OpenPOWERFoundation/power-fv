@@ -2,9 +2,10 @@ from amaranth import *
 
 from power_fv import pfv
 from power_fv.insn.const import *
+from power_fv.intr import *
 
 from . import InsnSpec
-from .utils import iea
+from .utils import iea, msr_to_srr1
 
 
 __all__ = ["TrapSpec"]
@@ -17,8 +18,6 @@ class TrapSpec(InsnSpec, Elaboratable):
         m.d.comb += [
             self.pfv.stb .eq(1),
             self.pfv.insn.eq(Cat(Const(0, 32), self.insn.as_value())),
-            self.pfv.nia .eq(iea(self.pfv.cia + 4, self.pfv.msr.r_data.sf)),
-            self.pfv.msr.r_mask.sf.eq(1),
         ]
 
         src_a = Signal(signed(64))
@@ -47,7 +46,7 @@ class TrapSpec(InsnSpec, Elaboratable):
         else:
             assert False
 
-        # Compare operands, then trap if a condition is met.
+        # Compare operands
 
         m.d.comb += [
             cond.eq(self.insn.TO),
@@ -57,8 +56,36 @@ class TrapSpec(InsnSpec, Elaboratable):
             trap.eq_.eq(cond.eq_ & (src_a == src_b)),
             trap.ltu.eq(cond.ltu & (src_a.as_unsigned() < src_b.as_unsigned())),
             trap.gtu.eq(cond.gtu & (src_a.as_unsigned() > src_b.as_unsigned())),
-
-            self.pfv.intr.eq(trap.any()),
         ]
+
+        # Trap if a condition is met
+
+        m.d.comb += self.pfv.msr.r_mask.sf.eq(1)
+
+        with m.If(trap.any()):
+            m.d.comb += [
+                self.pfv.intr.eq(1),
+                self.pfv.nia .eq(INTR_PROGRAM.vector_addr),
+                INTR_PROGRAM.write_msr(self.pfv.msr),
+
+                self.pfv.srr0.w_mask.eq(Repl(1, 64)),
+                self.pfv.srr0.w_data.eq(iea(self.pfv.cia, self.pfv.msr.r_data.sf)),
+
+                self.pfv.srr1.w_mask[63-36:64-33].eq(0xf),
+                self.pfv.srr1.w_data[63-36:64-33].eq(0x0),
+
+                self.pfv.srr1.w_mask[63-42].eq(1),
+                self.pfv.srr1.w_data[63-42].eq(0),
+                self.pfv.srr1.w_mask[63-46:64-43].eq(Repl(1, 4)),
+                self.pfv.srr1.w_data[63-46:64-43].eq(0b0001), # Trap type
+                self.pfv.srr1.w_mask[63-47].eq(1),
+                self.pfv.srr1.w_data[63-47].eq(0),
+
+                msr_to_srr1(self.pfv.msr, self.pfv.srr1,  0, 32),
+                msr_to_srr1(self.pfv.msr, self.pfv.srr1, 37, 41),
+                msr_to_srr1(self.pfv.msr, self.pfv.srr1, 48, 63),
+            ]
+        with m.Else():
+            m.d.comb += self.pfv.nia.eq(iea(self.pfv.cia + 4, self.pfv.msr.r_data.sf))
 
         return m

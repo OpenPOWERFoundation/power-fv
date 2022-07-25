@@ -18,6 +18,9 @@ class MicrowattWrapper(Elaboratable):
     def add_check_arguments(cls, parser):
         group = parser.add_argument_group(title="microwatt options")
         group.add_argument(
+            "--bus-fairness", action="store_true",
+            help="add bus fairness constraints")
+        group.add_argument(
             "--ex1-bypass", choices=("true","false"), default="true",
             help="(default: %(default)s)")
         group.add_argument(
@@ -148,6 +151,7 @@ class MicrowattWrapper(Elaboratable):
         keep_wb_fanout(self.wb_insn)
         keep_wb_fanout(self.wb_data)
 
+        self.bus_fairness  = bus_fairness;
         self._toplevel_src = self.MICROWATT_TOPLEVEL.format(**kwargs)
 
     def elaborate(self, platform):
@@ -264,6 +268,26 @@ class MicrowattWrapper(Elaboratable):
                 # no trace interrupts
                 Assume(self.pfv.msr.w_mask.te[0].implies(~self.pfv.msr.w_data.te[0])),
                 Assume(self.pfv.msr.w_mask.te[1].implies(~self.pfv.msr.w_data.te[1])),
+            ]
+
+        if self.bus_fairness:
+            ibus_wait = Signal(2)
+            dbus_wait = Signal(2)
+
+            with m.If(self.wb_insn.cyc & self.wb_insn.stb & ~self.wb_insn.ack):
+                m.d.comb += Assume(self.wb_insn.stall)
+                m.d.sync += ibus_wait.eq(ibus_wait + 1)
+            with m.Else():
+                m.d.sync += ibus_wait.eq(0)
+
+            with m.If(self.wb_data.cyc & self.wb_data.stb & ~self.wb_data.ack):
+                m.d.comb += Assume(self.wb_data.stall)
+                m.d.sync += dbus_wait.eq(dbus_wait + 1)
+            with m.Else():
+                m.d.sync += dbus_wait.eq(0)
+
+            m.d.comb += [
+                Assume((ibus_wait < 2) & (dbus_wait < 2)),
             ]
 
         return m

@@ -6,10 +6,64 @@ from amaranth.asserts import *
 from power_fv.check import PowerFVCheck
 
 
-__all__ = ["DataStorageCheck", "DataStorageModel", "DataStorageTestbench"]
+__all__ = [
+    "InsnStorageCheck", "InsnStorageModel", "InsnStorageTestbench",
+    "DataStorageCheck", "DataStorageModel", "DataStorageTestbench",
+]
 
 
 # TODO: add support for restricting addresses to non-cachable/write-through regions.
+
+
+class InsnStorageCheck(PowerFVCheck):
+    pass
+
+
+class InsnStorageModel(metaclass=ABCMeta):
+    @abstractmethod
+    def connect(self, dut):
+        raise NotImplementedError
+
+    @abstractmethod
+    def elaborate(self, platform):
+        raise NotImplementedError
+
+
+class InsnStorageTestbench(Elaboratable, metaclass=ABCMeta):
+    def __init__(self, check):
+        if not isinstance(check, InsnStorageCheck):
+            raise TypeError("Check must be an instance of InsnStorageCheck, not {!r}"
+                            .format(check))
+        self.check = check
+        self.name  = "storage_insn_tb"
+
+    @abstractmethod
+    def storage(self):
+        raise NotImplementedError
+
+    def elaborate(self, platform):
+        m = Module()
+
+        m.submodules.dut     = dut     = self.check.dut
+        m.submodules.storage = storage = self.storage()
+
+        insn_po  = Signal(6)
+        prefixed = Signal()
+
+        m.d.comb += [
+            storage.connect(dut),
+
+            insn_po .eq(dut.pfv.insn[63-5:64-0]),
+            prefixed.eq(insn_po == 1),
+        ]
+
+        with m.If(dut.pfv.stb & ~dut.pfv.intr):
+            with m.If(dut.pfv.cia == storage.addr):
+                m.d.comb += Assert(dut.pfv.insn[32:] == storage.data)
+            with m.If(prefixed & (dut.pfv.cia + 4 == storage.addr)):
+                m.d.comb += Assert(dut.pfv.insn[:32] == storage.data)
+
+        return m
 
 
 class DataStorageCheck(PowerFVCheck):
@@ -73,3 +127,4 @@ class DataStorageTestbench(Elaboratable, metaclass=ABCMeta):
                     m.d.comb += Assert(byte_r_data == byte_shadow)
 
         return m
+

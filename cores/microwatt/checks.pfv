@@ -5,7 +5,8 @@ check causal   --depth=15
 check liveness --depth=20 --skip=12 --bus-fairness
 check insn     --depth=17 --exclude=brh,brw,setbc,setbcr,setnbc,setnbcr
 
-check microwatt:storage:data --depth=15
+check microwatt:storage:insn --depth=20
+check microwatt:storage:data --depth=20
 
 build --build-dir=./build --src-dir=./src
 exit

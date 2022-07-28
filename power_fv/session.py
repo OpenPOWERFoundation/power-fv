@@ -1,5 +1,6 @@
 import argparse
 import os
+import readline
 import multiprocessing
 import sys
 

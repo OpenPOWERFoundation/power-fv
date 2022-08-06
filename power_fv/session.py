@@ -2,7 +2,6 @@ import argparse
 import os
 import readline
 import multiprocessing
-import sys
 
 from power_fv.build import sby
 from power_fv.core import PowerFVCore
@@ -47,7 +46,6 @@ class PowerFVSession:
         self.add_check_subparser()
         self.add_dump_subparser()
         self.add_build_subparser()
-        self.add_exit_subparser()
 
     def main(self):
         parser = argparse.ArgumentParser(prog=self.parser.prog)
@@ -60,19 +58,21 @@ class PowerFVSession:
             help="run commands from CMDFILE")
 
         args = parser.parse_args()
-        try:
-            self._loop(args)
-        except EOFError:
-            pass
+        self._loop(args)
 
     def _loop(self, args):
-        if args.cmdfile is None:
-            _readline = lambda: input("powerfv> ")
-        else:
-            _readline = args.cmdfile.readline
-
         while True:
-            line = _readline().rstrip("\n")
+            if args.cmdfile is None:
+                try:
+                    line = input("powerfv> ")
+                except EOFError:
+                    break
+            else:
+                line = args.cmdfile.readline()
+                if not line:
+                    break
+
+            line = line.strip()
             if not line or line.startswith("#"):
                 continue
             self._eval(line.split())
@@ -121,10 +121,6 @@ class PowerFVSession:
         PowerFVCheck .add_build_arguments(parser)
         self.core_cls.add_build_arguments(parser)
 
-    def add_exit_subparser(self):
-        parser = self.subparsers.add_parser("exit", help="exit")
-        parser.set_defaults(_cmd=self.exit)
-
     # Commands
 
     def help(self, **kwargs):
@@ -161,7 +157,3 @@ class PowerFVSession:
 
         with multiprocessing.Pool(jobs) as pool:
             pool.starmap(map_func, map_args)
-
-    def exit(self, **kwargs):
-        print("exiting")
-        sys.exit()

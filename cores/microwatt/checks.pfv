@@ -9,4 +9,3 @@ check microwatt:storage:insn --depth=20
 check microwatt:storage:data --depth=20
 
 build --build-dir=./build --src-dir=./src
-exit

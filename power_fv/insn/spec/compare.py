@@ -26,10 +26,10 @@ class CompareSpec(InsnSpec, Elaboratable):
         src_a  = Signal(64)
         src_b  = Signal(64)
         result = Record([
-            ("lt",  1),
-            ("gt",  1),
-            ("eq_", 1),
             ("so",  1),
+            ("eq_", 1),
+            ("gt",  1),
+            ("lt",  1),
         ])
 
         # Operand A : (RA) or EXTS((RA)(32:63)) or EXTZ((RA)(32:63)) or EXTZ((RA)(56:63))

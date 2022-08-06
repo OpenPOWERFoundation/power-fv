@@ -53,8 +53,11 @@ class Interrupt:
         return stmts
 
 
-# TODO: Support MSR.{IR,DR,HV,S,LE} bits, which depend on context (e.g. LPCR)
+# TODO:
+# - Support MSR.{IR,DR,HV,S,LE} bits, which depend on context (e.g. LPCR)
+# - Support LPCR.{AIL,HAIL} fields. For now, assume AIL=0 and HAIL=0
+#   (i.e. interrupts always set IR/DR to 0).
 
-INTR_ALIGNMENT   = Interrupt(0x600, ir=None, dr=None, ee=0, ri=0, me=None, hv=None, s=None)
-INTR_PROGRAM     = Interrupt(0x700, ir=None, dr=None, ee=0, ri=0, me=None, hv=None, s=None)
-INTR_SYSTEM_CALL = Interrupt(0xC00, ir=None, dr=None, ee=0, ri=0, me=None, hv=None, s=None)
+INTR_ALIGNMENT   = Interrupt(0x600, ir=0, dr=0, ee=0, ri=0, me=None, hv=None, s=None)
+INTR_PROGRAM     = Interrupt(0x700, ir=0, dr=0, ee=0, ri=0, me=None, hv=None, s=None)
+INTR_SYSTEM_CALL = Interrupt(0xC00, ir=0, dr=0, ee=0, ri=0, me=None, hv=None, s=None)

@@ -17,16 +17,10 @@ __all__ = ["PowerFVSession"]
 class PowerFVCommandExit(Exception):
     pass
 
-class PowerFVCommandError(Exception):
-    pass
-
 
 class _ArgumentParser(argparse.ArgumentParser):
     def exit(self, status=0, message=None):
         raise PowerFVCommandExit()
-
-    def error(self, message):
-        raise PowerFVCommandError()
 
 
 class PowerFVSession:
@@ -38,7 +32,7 @@ class PowerFVSession:
         cls.core_cls = core_cls
 
     def __init__(self, prog=None):
-        self.parser     = _ArgumentParser(prog=prog, add_help=False)
+        self.parser     = _ArgumentParser(prog="", add_help=False)
         self.subparsers = self.parser.add_subparsers(help="commands")
         self._checks    = dict()
 
@@ -47,8 +41,8 @@ class PowerFVSession:
         self.add_dump_subparser()
         self.add_build_subparser()
 
-    def main(self):
-        parser = argparse.ArgumentParser(prog=self.parser.prog)
+    def main(self, prog):
+        parser = argparse.ArgumentParser(prog=prog)
         group  = parser.add_mutually_exclusive_group()
         group.add_argument(
             "-i", dest="interact", action="store_true",
@@ -86,8 +80,6 @@ class PowerFVSession:
             cmd(**vars(args))
         except PowerFVCommandExit:
             pass
-        except PowerFVCommandError:
-            self.help()
 
     # Subparsers
 

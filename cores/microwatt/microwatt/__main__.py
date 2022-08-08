@@ -11,4 +11,4 @@ class MicrowattSession(PowerFVSession, core_cls=MicrowattCore):
 
 if __name__ == "__main__":
     PROG = "python -m {}".format(PurePath(__file__).parent.name)
-    MicrowattSession(prog=PROG).main()
+    MicrowattSession().main(prog=PROG)

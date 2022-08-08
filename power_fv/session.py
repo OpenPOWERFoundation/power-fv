@@ -1,7 +1,11 @@
 import argparse
-import os
+import json
 import readline
 import multiprocessing
+
+from pathlib import Path
+from time import strftime, localtime
+from operator import itemgetter
 
 from power_fv.build import sby
 from power_fv.core import PowerFVCore
@@ -107,10 +111,19 @@ class PowerFVSession:
         parser.set_defaults(_cmd=self.build)
 
         parser.add_argument(
-            "-j", "--jobs", type=int, default=os.cpu_count(),
+            "-j", "--jobs", type=int, default=multiprocessing.cpu_count(),
             help="number of worker processes (default: %(default)s)")
+        parser.add_argument(
+            "--result-dir", type=Path, default=None,
+            help="result directory (default: result-$(date +%%Y%%m%%d_%%H%%M%%S))")
+        parser.add_argument(
+            "--build-dir", type=Path, default=Path("./build"),
+            help="output directory (default: %(default)s)")
+        parser.add_argument(
+            "--connect-to", type=json.loads, required=False,
+            help="execute the build plan on a remote server using SSH "
+                 "(JSON string of arguments passed to paramiko's SSHClient.connect)")
 
-        PowerFVCheck .add_build_arguments(parser)
         self.core_cls.add_build_arguments(parser)
 
     # Commands
@@ -134,18 +147,80 @@ class PowerFVSession:
         pprint(self._checks, sort_dicts=False)
 
     @staticmethod
-    def _build_check(core_cls, check_name, check_args, build_args):
-        check_cls = PowerFVCheck.all_checks[tuple(check_name.split(":"))]
-        core  = core_cls()
-        check = check_cls(core=core, **check_args)
-        check.build(**build_args)
+    def _build_worker(check_name, plan, root, connect_to):
+        if connect_to is not None:
+            products = plan.execute_remote_ssh(connect_to=connect_to, root=root)
+        else:
+            products = plan.execute_local(root)
+        return check_name, products
 
-    def build(self, *, jobs, **kwargs):
-        map_func = PowerFVSession._build_check
-        map_args = []
+    def build(self, *, jobs, result_dir, build_dir, connect_to, **kwargs):
+        worker_inputs  = []
+        worker_outputs = None
+
+        # Create the result directory.
+
+        if result_dir is None:
+            result_dir = Path("./result-{}".format(strftime("%Y%m%d_%H%M%S", localtime())))
+        else:
+            result_dir = Path(result_dir)
+
+        Path.mkdir(result_dir, exist_ok=False)
+
+        # Create build plans for scheduled checks.
+
+        def prepare_check(check_name, check_args):
+            check_cls = PowerFVCheck.all_checks[tuple(check_name.split(":"))]
+            check = check_cls(core=self.core_cls(), **check_args)
+            return check.build(do_build=False, **kwargs)
 
         for check_name, check_args in self._checks.items():
-            map_args.append((self.core_cls, check_name, check_args, kwargs))
+            plan = prepare_check(check_name, check_args)
+            root = str(build_dir / check_name)
+            worker_inputs.append((check_name, plan, root, connect_to))
+
+            # Save an archive of the build files to the result directory.
+            plan.archive(result_dir / f"{check_name}.zip")
+
+        # Execute build plans.
+
+        if connect_to is not None:
+            # BuildPlan.execute_remote_ssh() will fail if the parent of its root directory doesn't
+            # exist. In our case, checks are built in subdirectories of `build_dir`, so we need to
+            # create it beforehand.
+            from paramiko import SSHClient
+            with SSHClient() as client:
+                client.load_system_host_keys()
+                client.connect(**connect_to)
+                with client.open_sftp() as sftp:
+                    try:
+                        sftp.mkdir(str(build_dir))
+                    except IOError as e:
+                        if e.errno:
+                            raise e
 
         with multiprocessing.Pool(jobs) as pool:
-            pool.starmap(map_func, map_args)
+            worker_outputs = pool.starmap(PowerFVSession._build_worker, worker_inputs)
+
+        # Write the results.
+
+        def write_result(check_name, products):
+            status = "unknown"
+            for filename in ("PASS", "FAIL"):
+                try:
+                    products.get(f"{check_name}_tb/{filename}")
+                    status = filename.lower()
+                except:
+                    pass
+
+            with open(result_dir / "status.txt", "a") as statusfile:
+                statusfile.write(f"{check_name} {status}\n")
+
+            if status == "fail":
+                with open(result_dir / f"{check_name}.log", "w") as logfile:
+                    logfile.write(products.get(f"{check_name}_tb/engine_0/logfile.txt", "t"))
+                with open(result_dir / f"{check_name}.vcd", "w") as vcdfile:
+                    vcdfile.write(products.get(f"{check_name}_tb/engine_0/trace.vcd", "t"))
+
+        for check_name, products in sorted(worker_outputs, key=itemgetter(0)):
+            write_result(check_name, products)

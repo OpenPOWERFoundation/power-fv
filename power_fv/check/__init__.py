@@ -1,5 +1,3 @@
-import json
-
 from abc import ABCMeta, abstractmethod
 from pathlib import Path
 
@@ -50,16 +48,6 @@ class PowerFVCheck(metaclass=PowerFVCheckMeta):
             "--cover", action="store_true",
             help="generate the shortest trace to reach every Cover() statement")
 
-    @classmethod
-    def add_build_arguments(cls, parser):
-        parser.add_argument(
-            "--build-dir", type=Path, default=Path("./build"),
-            help="output directory (default: %(default)s)")
-        parser.add_argument(
-            "--connect-to", type=json.loads, required=False,
-            help="execute the build plan on a remote server using SSH "
-                 "(JSON string of arguments passed to paramiko's SSHClient.connect)")
-
     def __init__(self, *, depth, skip, cover, core, **kwargs):
         self.depth = depth
         self.skip  = skip if skip is not None else depth - 1
@@ -71,22 +59,15 @@ class PowerFVCheck(metaclass=PowerFVCheckMeta):
     def testbench(self):
         raise NotImplementedError
 
-    def build(self, *, build_dir, connect_to=None, **kwargs):
+    def build(self, *, do_build=True, **kwargs):
         platform = sby.SymbiYosysPlatform()
         self.core.add_files(platform, self.dut, **kwargs)
 
         top = self.testbench()
-        build_dir = str(build_dir / top.name)
+
         overrides = {key: str(value) for key, value in kwargs.items()}
         overrides["depth"] = str(self.depth)
         overrides["skip"] = str(self.skip)
         overrides["mode"] = "cover" if self.cover else "bmc"
 
-        plan = platform.build(top, name=top.name, build_dir=build_dir, do_build=False, **overrides)
-
-        if connect_to is not None:
-            products = plan.execute_remote_ssh(connect_to=connect_to, root=build_dir)
-        else:
-            products = plan.execute_local(build_dir)
-
-        return products
+        return platform.build(top, name=top.name, do_build=do_build, **overrides)

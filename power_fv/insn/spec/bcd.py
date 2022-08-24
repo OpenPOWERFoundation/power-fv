@@ -15,8 +15,8 @@ class BCDAssistSpec(InsnSpec, Elaboratable):
         m = Module()
 
         m.d.comb += [
-            self.pfv.stb .eq(1),
-            self.pfv.insn.eq(Cat(Const(0, 32), self.insn.as_value())),
+            self.insn    .eq(self.pfv.insn[32:]),
+            self.pfv.stb .eq(self.insn.is_valid() & ~self.pfv.insn[:32].any()),
             self.pfv.intr.eq(0),
             self.pfv.nia .eq(iea(self.pfv.cia + 4, self.pfv.msr.r_data.sf)),
             self.pfv.msr.r_mask.sf.eq(1),

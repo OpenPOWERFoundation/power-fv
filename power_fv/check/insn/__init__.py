@@ -50,8 +50,11 @@ class InsnTestbench(Elaboratable):
         m.submodules.spec   = spec   = self.check.spec
 
         m.d.comb  += [
+            spec.pfv.insn .eq(AnyConst(spec.pfv.insn.shape())),
             spec.pfv.order.eq(dut.pfv.order),
             spec.pfv.cia  .eq(dut.pfv.cia),
+
+            Assume(spec.pfv.stb),
         ]
 
         with m.If(t_post.zero):

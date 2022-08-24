@@ -2,8 +2,6 @@ from amaranth import *
 from amaranth.build import *
 from amaranth.lib.cdc import ResetSynchronizer
 
-from power_fv.check import PowerFVCheck
-
 
 __all__ = ["SymbiYosysPlatform"]
 

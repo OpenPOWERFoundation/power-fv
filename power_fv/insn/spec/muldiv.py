@@ -76,10 +76,8 @@ class MultiplySpec(InsnSpec, Elaboratable):
 
             if isinstance(self.insn, MULLI):
                 m.d.comb += altop_mask.eq(0xef31a883837039a0)
-            elif isinstance(self.insn, (MULLW, MULLW_)):
+            elif isinstance(self.insn, (MULLW, MULLW_, MULLWO, MULLWO_)):
                 m.d.comb += altop_mask.eq(0x4931591f31f56de1)
-            elif isinstance(self.insn, (MULLWO, MULLWO_)):
-                m.d.comb += altop_mask.eq(0x37291ea821fbaf9d)
             elif isinstance(self.insn, (MULHW, MULHW_)):
                 m.d.comb += altop_mask.eq(0x3426dcf55920989c)
             elif isinstance(self.insn, (MULHWU, MULHWU_)):
@@ -208,22 +206,14 @@ class DivideSpec(InsnSpec, Elaboratable):
             altop_res  = Signal(signed(64))
             ca_32      = Signal()
 
-            if isinstance(self.insn, (DIVW, DIVW_)):
+            if isinstance(self.insn, (DIVW, DIVW_, DIVWO, DIVWO_)):
                 m.d.comb += altop_mask.eq(0x75a5d4895a3e15ba)
-            elif isinstance(self.insn, (DIVWO, DIVWO_)):
-                m.d.comb += altop_mask.eq(0x7098f59fd4822d48)
-            elif isinstance(self.insn, (DIVWU, DIVWU_)):
+            elif isinstance(self.insn, (DIVWU, DIVWU_, DIVWUO, DIVWUO_)):
                 m.d.comb += altop_mask.eq(0x769c76af68d11402)
-            elif isinstance(self.insn, (DIVWUO, DIVWUO_)):
-                m.d.comb += altop_mask.eq(0x6ec48c33b1fe6a8f)
-            elif isinstance(self.insn, (DIVWE, DIVWE_)):
+            elif isinstance(self.insn, (DIVWE, DIVWE_, DIVWEO, DIVWEO_)):
                 m.d.comb += altop_mask.eq(0xdfd9d577965d84d2)
-            elif isinstance(self.insn, (DIVWEO, DIVWEO_)):
-                m.d.comb += altop_mask.eq(0x88ec39a41f3b07fd)
-            elif isinstance(self.insn, (DIVWEU, DIVWEU_)):
+            elif isinstance(self.insn, (DIVWEU, DIVWEU_, DIVWEUO, DIVWEUO_)):
                 m.d.comb += altop_mask.eq(0x8fc71f88b966fcf0)
-            elif isinstance(self.insn, (DIVWEUO, DIVWEUO_)):
-                m.d.comb += altop_mask.eq(0x893cca367133b0d3)
             elif isinstance(self.insn, MODSW):
                 m.d.comb += altop_mask.eq(0x5ba1758b11ae4e43)
             elif isinstance(self.insn, MODUW):

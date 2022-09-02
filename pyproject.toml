@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "power-fv"
 version = "0.1.0"
-description = "Amaranth HDL library for formal verification of POWER processors"
+description = "Assertion-based formal verification library for OpenPOWER processors"
 authors = ["Jean-François Nguyen <jf@jfng.fr>"]
 license = "BSD"
 

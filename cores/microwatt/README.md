@@ -4,7 +4,7 @@
 - [ghdl-yosys-plugin](https://github.com/ghdl/ghdl-yosys-plugin)
 
 
-Get Microwatt:
+POWER-FV support for Microwatt can be previewed on the following fork:
 
 ```
 git clone git@git.openpower.foundation:jfng/microwatt -b powerfv src

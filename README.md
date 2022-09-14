@@ -2,11 +2,11 @@
 
 ## Disclaimer
 
-*This project is currently in an experimental state. In particular:
+**This project is currently in an experimental state.** In particular:
 - it has only been tried on the Microwatt CPU
 - it assumes an in-order scalar core
 - its instruction coverage is limited to the Scalar Fixed-point Compliancy Subset
-- the correctness of its own specifications hasn't yet been verified*
+- the correctness of its own specifications hasn't yet been verified
 
 ## Overview
 

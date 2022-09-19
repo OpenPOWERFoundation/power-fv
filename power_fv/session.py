@@ -175,12 +175,13 @@ class PowerFVSession:
             return check.build(do_build=False, **kwargs)
 
         for check_name, check_args in self._checks.items():
-            plan = prepare_check(check_name, check_args)
-            root = str(build_dir / check_name)
-            worker_inputs.append((check_name, plan, root, connect_to))
+            plan    = prepare_check(check_name, check_args)
+            tb_name = "{}_tb".format(check_name.replace(":", "_"))
+            tb_root = str(build_dir / tb_name)
+            worker_inputs.append((tb_name, plan, tb_root, connect_to))
 
             # Save an archive of the build files to the result directory.
-            plan.archive(result_dir / f"{check_name}.zip")
+            plan.archive(result_dir / f"{tb_name}.zip")
 
         # Execute build plans.
 
@@ -204,23 +205,23 @@ class PowerFVSession:
 
         # Write the results.
 
-        def write_result(check_name, products):
+        def write_result(tb_name, products):
             status = "unknown"
             for filename in ("PASS", "FAIL"):
                 try:
-                    products.get(f"{check_name}_tb/{filename}")
+                    products.get(f"{tb_name}/{filename}")
                     status = filename.lower()
                 except:
                     pass
 
             with open(result_dir / "status.txt", "a") as statusfile:
-                statusfile.write(f"{check_name} {status}\n")
+                statusfile.write(f"{tb_name} {status}\n")
 
             if status == "fail":
-                with open(result_dir / f"{check_name}.log", "w") as logfile:
-                    logfile.write(products.get(f"{check_name}_tb/engine_0/logfile.txt", "t"))
-                with open(result_dir / f"{check_name}.vcd", "w") as vcdfile:
-                    vcdfile.write(products.get(f"{check_name}_tb/engine_0/trace.vcd", "t"))
+                with open(result_dir / f"{tb_name}.log", "w") as logfile:
+                    logfile.write(products.get(f"{tb_name}/engine_0/logfile.txt", "t"))
+                with open(result_dir / f"{tb_name}.vcd", "w") as vcdfile:
+                    vcdfile.write(products.get(f"{tb_name}/engine_0/trace.vcd", "t"))
 
-        for check_name, products in sorted(worker_outputs, key=itemgetter(0)):
-            write_result(check_name, products)
+        for tb_name, products in sorted(worker_outputs, key=itemgetter(0)):
+            write_result(tb_name, products)

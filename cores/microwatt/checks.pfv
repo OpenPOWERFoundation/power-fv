@@ -2,7 +2,7 @@ check unique   --depth=15 --skip=12
 check cia      --depth=15
 check gpr      --depth=15
 check causal   --depth=15
-check liveness --depth=20 --skip=12 --bus-fairness
+#check liveness --depth=20 --skip=12 --bus-fairness
 check insn     --depth=17 --exclude=brh,brw,setbc,setbcr,setnbc,setnbcr
 
 check microwatt:storage:insn --depth=20

@@ -106,6 +106,9 @@ class Interface(Record):
     The following parameters describe implementation-specific behavior. They do not affect the
     layout of this interface.
 
+    gpr_width : int
+        General-purpose register width. Either 32 or 64. Compliance with Power ISA versions above
+        v2.7B requires 64-bit wide GPRs.
     mem_aligned : bool
         If ``True``, an Alignment interrupt is expected if the effective address of a Load/Store
         operation is not aligned to its operand; ``mem.addr`` is also expected to be aligned to
@@ -215,8 +218,12 @@ class Interface(Record):
     srr1 : Record(:func:`reg_port_layout`)
         Save/Restore Register 1 access.
     """
-    def __init__(self, *, mem_aligned=False, illegal_insn_heai=False, muldiv_altops=False,
-                 name=None, src_loc_at=0):
+    def __init__(self, *, gpr_width=64, mem_aligned=False, illegal_insn_heai=False,
+                 muldiv_altops=False, name=None, src_loc_at=0):
+        if gpr_width not in (32, 64):
+            raise ValueError("GPR width must be 32 or 64, not {!r}".format(gpr_width))
+
+        self.gpr_width         = gpr_width
         self.mem_aligned       = bool(mem_aligned)
         self.illegal_insn_heai = bool(illegal_insn_heai)
         self.muldiv_altops     = bool(muldiv_altops)

@@ -28,7 +28,13 @@ class InsnCheck(PowerFVCheck, metaclass=InsnCheckMeta):
     def __init__(self, *, depth, skip, core, **kwargs):
         super().__init__(depth=depth, skip=skip, core=core, **kwargs)
         self.insn = self.insn_cls()
-        self.spec = self.spec_cls(self.insn, mem_aligned=self.dut.pfv.mem_aligned, muldiv_altops=self.dut.pfv.muldiv_altops)
+        self.spec = self.spec_cls(
+            insn              = self.insn,
+            gpr_width         = self.dut.pfv.gpr_width,
+            mem_aligned       = self.dut.pfv.mem_aligned,
+            illegal_insn_heai = self.dut.pfv.illegal_insn_heai,
+            muldiv_altops     = self.dut.pfv.muldiv_altops,
+        )
 
     def testbench(self):
         return InsnTestbench(self)
@@ -134,8 +140,9 @@ class InsnTestbench(Elaboratable):
 
 class _GPRFileTest(Elaboratable):
     def __init__(self, check, *, port):
-        self._dut  = getattr(check.dut .pfv, port)
-        self._spec = getattr(check.spec.pfv, port)
+        self._dut   = getattr(check.dut .pfv, port)
+        self._spec  = getattr(check.spec.pfv, port)
+        self._width = check.dut.pfv.gpr_width
 
         self.valid = Record([
             ("read" , [("index", 1), ("r_stb", 1)]),
@@ -148,6 +155,10 @@ class _GPRFileTest(Elaboratable):
         dut  = Record.like(self._dut )
         spec = Record.like(self._spec)
 
+        def gpr_equal(a, b):
+            mask = Const(2**self._width - 1, self._width)
+            return a & mask == b & mask
+
         m.d.comb += [
             dut .eq(self._dut ),
             spec.eq(self._spec),
@@ -159,7 +170,7 @@ class _GPRFileTest(Elaboratable):
             # The DUT and the spec must write the same value to the same GPR.
             self.valid.write.index .eq(spec.w_stb.implies(dut.index == spec.index)),
             self.valid.write.w_stb .eq(spec.w_stb == dut.w_stb),
-            self.valid.write.w_data.eq(spec.w_stb.implies(dut.w_data == spec.w_data)),
+            self.valid.write.w_data.eq(spec.w_stb.implies(gpr_equal(dut.w_data, spec.w_data))),
         ]
 
         return m

@@ -1,0 +1,13 @@
+check unique --depth=15 --skip=10
+check cia    --depth=15
+check gpr    --depth=15
+check causal --depth=15
+
+check insn:addi  --depth=15
+check insn:addis --depth=15
+check insn:ori   --depth=15
+check insn:oris  --depth=15
+check insn:xori  --depth=15
+check insn:xoris --depth=15
+
+build --build-dir=./build

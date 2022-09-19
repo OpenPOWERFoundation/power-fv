@@ -43,7 +43,7 @@ class PowerFVCore:
         pass
 
     @classmethod
-    def add_files(cls, platform, wrapper, *, src_dir, **kwargs):
+    def add_files(cls, platform, wrapper, **kwargs):
         """Add source files to the build plan.
 
         Parameters

@@ -4,7 +4,7 @@
 - [ghdl-yosys-plugin](https://github.com/ghdl/ghdl-yosys-plugin)
 
 
-POWER-FV support for Microwatt can be previewed on the following fork:
+A version of Microwatt with POWER-FV support is available here:
 
 ```
 git clone git@git.openpower.foundation:jfng/microwatt -b powerfv src
@@ -17,7 +17,7 @@ git clone git@git.openpower.foundation:jfng/microwatt -b powerfv src
 ```
 poetry shell
 
-python -m microwatt -h
+python -m microwatt_cli -h
 
 exit
 ```
@@ -25,11 +25,11 @@ exit
 ### Run commands from a file
 
 ```
-python -m microwatt -c checks.pfv
+python -m microwatt_cli -c checks.pfv
 ```
 
 ### Run commands interactively
 
 ```
-python -m microwatt -i
+python -m microwatt_cli -i
 ```

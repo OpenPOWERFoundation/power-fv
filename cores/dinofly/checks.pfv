@@ -1,13 +1,89 @@
 check unique --depth=15 --skip=10
-check cia    --depth=15
 check gpr    --depth=15
+#check cia    --depth=15
 check causal --depth=15
 
-check insn:addi  --depth=15
-check insn:addis --depth=15
-check insn:ori   --depth=15
-check insn:oris  --depth=15
-check insn:xori  --depth=15
-check insn:xoris --depth=15
+check insn:add     --depth=15
+check insn:add_    --depth=15
+check insn:addc    --depth=15
+check insn:addc_   --depth=15
+check insn:adde    --depth=15
+check insn:adde_   --depth=15
+check insn:addex   --depth=15
+check insn:addi    --depth=15
+check insn:addic   --depth=15
+check insn:addic_  --depth=15
+check insn:addis   --depth=15
+check insn:addme   --depth=15
+check insn:addme_  --depth=15
+check insn:addze   --depth=15
+check insn:addze_  --depth=15
+check insn:neg     --depth=15
+check insn:neg_    --depth=15
+check insn:subf    --depth=15
+check insn:subf_   --depth=15
+check insn:subfc   --depth=15
+check insn:subfc_  --depth=15
+check insn:subfe   --depth=15
+check insn:subfe_  --depth=15
+check insn:subfic  --depth=15
+check insn:subfme  --depth=15
+check insn:subfme_ --depth=15
+check insn:subfze  --depth=15
+check insn:subfze_ --depth=15
+
+check insn:and    --depth=15
+check insn:and_   --depth=15
+check insn:andc   --depth=15
+check insn:andc_  --depth=15
+check insn:andi_  --depth=15
+check insn:andis_ --depth=15
+check insn:eqv    --depth=15
+check insn:eqv_   --depth=15
+check insn:nand   --depth=15
+check insn:nand_  --depth=15
+check insn:nor    --depth=15
+check insn:nor_   --depth=15
+check insn:or     --depth=15
+check insn:or_    --depth=15
+check insn:orc    --depth=15
+check insn:orc_   --depth=15
+check insn:ori    --depth=15
+check insn:oris   --depth=15
+check insn:xor    --depth=15
+check insn:xor_   --depth=15
+check insn:xori   --depth=15
+check insn:xoris  --depth=15
+
+check insn:crand  --depth=15
+check insn:crandc --depth=15
+check insn:creqv  --depth=15
+check insn:crnand --depth=15
+check insn:crnor  --depth=15
+check insn:cror   --depth=15
+check insn:crorc  --depth=15
+check insn:crxor  --depth=15
+
+check insn:mcrf  --depth=15
+
+check insn:cmpi  --depth=15
+check insn:cmpli --depth=15
+check insn:cmp   --depth=15
+check insn:cmpl  --depth=15
+
+check insn:rlwimi  --depth=15
+check insn:rlwimi_ --depth=15
+check insn:rlwinm  --depth=15
+check insn:rlwinm_ --depth=15
+check insn:rlwnm   --depth=15
+check insn:rlwnm_  --depth=15
+check insn:slw     --depth=15
+check insn:slw_    --depth=15
+check insn:sraw    --depth=15
+check insn:sraw_   --depth=15
+check insn:srawi   --depth=15
+check insn:srawi_  --depth=15
+check insn:srw     --depth=15
+check insn:srw_    --depth=15
 
 build --build-dir=./build

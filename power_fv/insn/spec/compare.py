@@ -23,8 +23,8 @@ class CompareSpec(InsnSpec, Elaboratable):
             self.pfv.xer.r_mask.so.eq(1),
         ]
 
-        src_a  = Signal(64)
-        src_b  = Signal(64)
+        src_a  = Signal(self.pfv.gpr_width)
+        src_b  = Signal(self.pfv.gpr_width)
         result = Record([
             ("so",  1),
             ("eq_", 1),
@@ -120,7 +120,7 @@ class CompareSpec(InsnSpec, Elaboratable):
 
         elif isinstance(self.insn, CMPEQB):
             _match = 0
-            for i in range(64//8):
+            for i in range(self.pfv.gpr_width//8):
                 _match |= (src_a == src_b.word_select(i, width=8))
 
             m.d.comb += result.eq(Cat(Const(0, 2), _match, Const(0, 1)))

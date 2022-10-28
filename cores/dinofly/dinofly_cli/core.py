@@ -14,6 +14,7 @@ class DinoflyWrapper(Elaboratable):
         self._cpu = DinoflyCPU(with_pfv=True)
         self.pfv  = self._cpu.pfv
         self.ibus = self._cpu.ibus
+        self.dbus = self._cpu.dbus
 
     def elaborate(self, platform):
         m = Module()
@@ -24,6 +25,10 @@ class DinoflyWrapper(Elaboratable):
             self.ibus.dat_r.eq(AnySeq(self.ibus.data_width)),
             self.ibus.ack  .eq(AnySeq(1)),
             self.ibus.err  .eq(AnySeq(1)),
+
+            self.dbus.dat_r.eq(AnySeq(self.dbus.data_width)),
+            self.dbus.ack  .eq(AnySeq(1)),
+            self.dbus.err  .eq(AnySeq(1)),
         ]
 
         return m

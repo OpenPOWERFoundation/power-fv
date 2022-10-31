@@ -118,32 +118,26 @@ class LoadStoreSpec(InsnSpec, Elaboratable):
 
             m.d.comb += ea.eq(iea(ea_base + ea_offset, self.pfv.msr.r_data.sf))
 
+            # The value of `pfv.mem.addr` must be equal to EA, rounded down to a multiple of
+            # ``2 ** pfv.mem_alignment``.
+
+            m.d.comb += [
+                self.pfv.mem.addr[self.pfv.mem_alignment:].eq(ea[self.pfv.mem_alignment:]),
+                self.pfv.mem.addr[:self.pfv.mem_alignment].eq(0),
+            ]
+
+            # Raise an Alignment Interrupt if EA is misaligned to the size of the storage operand
+            # and to ``2 ** pfv.mem_alignment``.
+
             byte_offset = Signal(3)
             half_offset = Signal(2)
             word_offset = Signal(1)
 
-            # If `pfv.mem_aligned` is set, `pfv.mem.addr` points to the dword containing EA.
-            # If `pfv.mem_aligned` is unset, `pfv.mem.addr` is equal to EA.
-
-            m.d.comb += self.pfv.mem.addr[3:].eq(ea[3:])
-
-            if self.pfv.mem_aligned:
-                m.d.comb += [
-                    self.pfv.mem.addr[:3].eq(0),
-                    byte_offset.eq(ea[:3]),
-                ]
-            else:
-                m.d.comb += [
-                    self.pfv.mem.addr[:3].eq(ea[:3]),
-                    byte_offset.eq(0),
-                ]
-
             m.d.comb += [
+                byte_offset.eq(ea[:self.pfv.mem_alignment]),
                 half_offset.eq(byte_offset[1:]),
                 word_offset.eq(byte_offset[2:]),
             ]
-
-            # Raise an Alignment Interrupt if EA is misaligned wrt. `pfv.mem`
 
             ea_misaligned = Signal()
 

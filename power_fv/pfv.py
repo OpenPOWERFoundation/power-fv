@@ -109,11 +109,12 @@ class Interface(Record):
     gpr_width : int
         General-purpose register width. Either 32 or 64. Compliance with Power ISA versions above
         v2.7B requires 64-bit wide GPRs.
-    mem_aligned : bool
-        If ``True``, an Alignment interrupt is expected if the effective address of a Load/Store
-        operation is not aligned to its operand; ``mem.addr`` is also expected to be aligned to
-        8 bytes. If ``False``, ``mem.addr`` is expected to point to the least- or most-significant
-        byte of the storage operand, depending on the current endian mode.
+    mem_alignment : log2 of int
+        Memory alignment. This parameter restricts the alignment of Load/Store accesses to either
+        ``2 ** pfv.mem_alignment`` bytes, or to the size of their operand. Otherwise, an Alignment
+        interrupt is triggered. A core that can transparently handle misaligned accesses may set
+        this value to 0, whereas one that requires software intervention may set it to the width
+        of its data bus (as a log2).
     illegal_insn_heai : bool
         If ``True``, an illegal instruction triggers an Hypervisor Emulation Assistance interrupt.
         Otherwise, it triggers an Illegal Instruction type Program interrupt (which was removed in
@@ -218,13 +219,16 @@ class Interface(Record):
     srr1 : Record(:func:`reg_port_layout`)
         Save/Restore Register 1 access.
     """
-    def __init__(self, *, gpr_width=64, mem_aligned=False, illegal_insn_heai=False,
+    def __init__(self, *, gpr_width=64, mem_alignment=0, illegal_insn_heai=False,
                  muldiv_altops=False, name=None, src_loc_at=0):
         if gpr_width not in (32, 64):
             raise ValueError("GPR width must be 32 or 64, not {!r}".format(gpr_width))
+        if mem_alignment not in (0, 1, 2, 3):
+            raise ValueError("Memory alignment must be an integer between 0 and 3, not {!r}"
+                             .format(mem_alignment))
 
         self.gpr_width         = gpr_width
-        self.mem_aligned       = bool(mem_aligned)
+        self.mem_alignment     = mem_alignment
         self.illegal_insn_heai = bool(illegal_insn_heai)
         self.muldiv_altops     = bool(muldiv_altops)
 

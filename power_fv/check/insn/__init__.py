@@ -31,7 +31,7 @@ class InsnCheck(PowerFVCheck, metaclass=InsnCheckMeta):
         self.spec = self.spec_cls(
             insn              = self.insn,
             gpr_width         = self.dut.pfv.gpr_width,
-            mem_aligned       = self.dut.pfv.mem_aligned,
+            mem_alignment     = self.dut.pfv.mem_alignment,
             illegal_insn_heai = self.dut.pfv.illegal_insn_heai,
             muldiv_altops     = self.dut.pfv.muldiv_altops,
         )

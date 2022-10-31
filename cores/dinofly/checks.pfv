@@ -55,6 +55,13 @@ check insn:xor_   --depth=15
 check insn:xori   --depth=15
 check insn:xoris  --depth=15
 
+check insn:brh    --depth=15
+check insn:brw    --depth=15
+check insn:extsb  --depth=15
+check insn:extsb_ --depth=15
+check insn:extsh  --depth=15
+check insn:extsh_ --depth=15
+
 check insn:crand  --depth=15
 check insn:crandc --depth=15
 check insn:creqv  --depth=15
@@ -66,10 +73,25 @@ check insn:crxor  --depth=15
 
 check insn:mcrf  --depth=15
 
+check insn:b     --depth=15
+check insn:ba    --depth=15
+
 check insn:cmpi  --depth=15
 check insn:cmpli --depth=15
 check insn:cmp   --depth=15
 check insn:cmpl  --depth=15
+
+check insn:lbz   --depth=15
+check insn:lbzx  --depth=15
+check insn:lha   --depth=15
+check insn:lhax  --depth=15
+check insn:lhz   --depth=15
+check insn:lhzx  --depth=15
+check insn:lwz   --depth=15
+check insn:lwbrx --depth=15
+check insn:stb   --depth=15
+check insn:sth   --depth=15
+check insn:stw   --depth=15
 
 check insn:rlwimi  --depth=15
 check insn:rlwimi_ --depth=15

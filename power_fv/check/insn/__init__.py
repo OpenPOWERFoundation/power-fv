@@ -215,8 +215,9 @@ class _MemPortTest(Elaboratable):
 
 class _SysRegTest(Elaboratable):
     def __init__(self, check, *, reg):
-        self._dut  = getattr(check.dut .pfv, reg)
-        self._spec = getattr(check.spec.pfv, reg)
+        self._dut   = getattr(check.dut .pfv, reg)
+        self._spec  = getattr(check.spec.pfv, reg)
+        self._width = check.dut.pfv.gpr_width
 
         self.valid = Record([
             ("read" , [("r_mask", 1)]),
@@ -238,6 +239,7 @@ class _SysRegTest(Elaboratable):
         ])
 
         def contains(a, mask, b=None):
+            mask &= 2**self._width - 1
             if b is None:
                 b = mask
             return a & mask == b & mask

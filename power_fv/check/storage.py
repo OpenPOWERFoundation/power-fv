@@ -57,10 +57,10 @@ class InsnStorageTestbench(Elaboratable, metaclass=ABCMeta):
             prefixed.eq(insn_po == 1),
         ]
 
-        with m.If(dut.pfv.stb & ~dut.pfv.intr):
+        with m.If(dut.pfv.stb):
             with m.If(dut.pfv.cia == storage.addr):
                 m.d.comb += Assert(dut.pfv.insn[32:] == storage.data)
-            with m.If(prefixed & (dut.pfv.cia + 4 == storage.addr)):
+            with m.If(prefixed & (dut.pfv.cia + 4 == storage.addr) & ~dut.pfv.intr):
                 m.d.comb += Assert(dut.pfv.insn[:32] == storage.data)
 
         return m

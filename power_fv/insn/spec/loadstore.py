@@ -199,35 +199,35 @@ class LoadStoreSpec(InsnSpec, Elaboratable):
                     load_result = Signal(64)
 
                     m.d.comb += [
-                        load_byte.eq(self.pfv.mem.r_data.word_select(byte_offset, width= 8)),
-                        load_half.eq(self.pfv.mem.r_data.word_select(half_offset, width=16)),
-                        load_word.eq(self.pfv.mem.r_data.word_select(word_offset, width=32)),
+                        load_byte.eq(self.pfv.mem.r_data.word_select(7 - byte_offset, width= 8)),
+                        load_half.eq(self.pfv.mem.r_data.word_select(3 - half_offset, width=16)),
+                        load_word.eq(self.pfv.mem.r_data.word_select(1 - word_offset, width=32)),
                     ]
 
                     if isinstance(self.insn, (LBZ, LBZX, LBZU, LBZUX)):
                         m.d.comb += [
-                            self.pfv.mem.r_mask.word_select(byte_offset, width=1).eq(0x1),
+                            self.pfv.mem.r_mask.word_select(7 - byte_offset, width=1).eq(0x1),
                             load_result.eq(load_byte.as_unsigned()),
                         ]
                     elif isinstance(self.insn, (LHZ, LHZX, LHZU, LHZUX)):
                         m.d.comb += [
-                            self.pfv.mem.r_mask.word_select(half_offset, width=2).eq(0x3),
-                            load_result.eq(byte_reversed(load_half, ~msr_le).as_unsigned()),
+                            self.pfv.mem.r_mask.word_select(3 - half_offset, width=2).eq(0x3),
+                            load_result.eq(byte_reversed(load_half, msr_le).as_unsigned()),
                         ]
                     elif isinstance(self.insn, (LHA, LHAX, LHAU, LHAUX)):
                         m.d.comb += [
-                            self.pfv.mem.r_mask.word_select(half_offset, width=2).eq(0x3),
-                            load_result.eq(byte_reversed(load_half, ~msr_le).as_signed())
+                            self.pfv.mem.r_mask.word_select(3 - half_offset, width=2).eq(0x3),
+                            load_result.eq(byte_reversed(load_half, msr_le).as_signed())
                         ]
                     elif isinstance(self.insn, (LWZ, LWZX, LWZU, LWZUX)):
                         m.d.comb += [
-                            self.pfv.mem.r_mask.word_select(word_offset, width=4).eq(0xf),
-                            load_result.eq(byte_reversed(load_word, ~msr_le).as_unsigned()),
+                            self.pfv.mem.r_mask.word_select(1 - word_offset, width=4).eq(0xf),
+                            load_result.eq(byte_reversed(load_word, msr_le).as_unsigned()),
                         ]
                     elif isinstance(self.insn, LWBRX):
                         m.d.comb += [
-                            self.pfv.mem.r_mask.word_select(word_offset, width=4).eq(0xf),
-                            load_result.eq(byte_reversed(load_word, msr_le).as_unsigned()),
+                            self.pfv.mem.r_mask.word_select(1 - word_offset, width=4).eq(0xf),
+                            load_result.eq(byte_reversed(load_word, ~msr_le).as_unsigned()),
                         ]
                     else:
                         assert False
@@ -261,28 +261,28 @@ class LoadStoreSpec(InsnSpec, Elaboratable):
 
                     if isinstance(self.insn, (STB, STBX, STBU, STBUX)):
                         m.d.comb += [
-                            self.pfv.mem.w_mask.word_select(byte_offset, width=1).eq(0x1),
+                            self.pfv.mem.w_mask.word_select(7 - byte_offset, width=1).eq(0x1),
                             self.pfv.mem.w_data.eq(store_byte),
                         ]
                     elif isinstance(self.insn, (STH, STHX, STHU, STHUX)):
                         m.d.comb += [
-                            self.pfv.mem.w_mask.word_select(half_offset, width=2).eq(0x3),
-                            self.pfv.mem.w_data.eq(byte_reversed(store_half, ~msr_le)),
+                            self.pfv.mem.w_mask.word_select(3 - half_offset, width=2).eq(0x3),
+                            self.pfv.mem.w_data.eq(byte_reversed(store_half, msr_le)),
                         ]
                     elif isinstance(self.insn, (STW, STWX, STWU, STWUX)):
                         m.d.comb += [
-                            self.pfv.mem.w_mask.word_select(word_offset, width=4).eq(0xf),
-                            self.pfv.mem.w_data.eq(byte_reversed(store_word, ~msr_le)),
+                            self.pfv.mem.w_mask.word_select(1 - word_offset, width=4).eq(0xf),
+                            self.pfv.mem.w_data.eq(byte_reversed(store_word, msr_le)),
                         ]
                     elif isinstance(self.insn, STHBRX):
                         m.d.comb += [
-                            self.pfv.mem.w_mask.word_select(half_offset, width=2).eq(0x3),
-                            self.pfv.mem.w_data.eq(byte_reversed(store_half, msr_le)),
+                            self.pfv.mem.w_mask.word_select(3 - half_offset, width=2).eq(0x3),
+                            self.pfv.mem.w_data.eq(byte_reversed(store_half, ~msr_le)),
                         ]
                     elif isinstance(self.insn, STWBRX):
                         m.d.comb += [
-                            self.pfv.mem.w_mask.word_select(word_offset, width=4).eq(0xf),
-                            self.pfv.mem.w_data.eq(byte_reversed(store_word, msr_le)),
+                            self.pfv.mem.w_mask.word_select(1 - word_offset, width=4).eq(0xf),
+                            self.pfv.mem.w_data.eq(byte_reversed(store_word, ~msr_le)),
                         ]
                     else:
                         assert False

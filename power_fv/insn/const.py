@@ -236,6 +236,19 @@ class RLWNM_  (WordInsn): _fields = (f.PO(23), f.RS(), f.RA(), f.RB(), f.MB(), f
 class RLWIMI  (WordInsn): _fields = (f.PO(20), f.RS(), f.RA(), f.SH(), f.MB(), f.ME(), f.Rc(0))
 class RLWIMI_ (WordInsn): _fields = (f.PO(20), f.RS(), f.RA(), f.SH(), f.MB(), f.ME(), f.Rc(1))
 
+class RLDICL  (WordInsn): _fields = (f.PO(30), f.RS(), f.RA(), f.sh1(), f.mb0(), f.mb1(), f.XO_MD(0), f.sh0(), f.Rc(0))
+class RLDICL_ (WordInsn): _fields = (f.PO(30), f.RS(), f.RA(), f.sh1(), f.mb0(), f.mb1(), f.XO_MD(0), f.sh0(), f.Rc(1))
+class RLDICR  (WordInsn): _fields = (f.PO(30), f.RS(), f.RA(), f.sh1(), f.me0(), f.me1(), f.XO_MD(1), f.sh0(), f.Rc(0))
+class RLDICR_ (WordInsn): _fields = (f.PO(30), f.RS(), f.RA(), f.sh1(), f.me0(), f.me1(), f.XO_MD(1), f.sh0(), f.Rc(1))
+class RLDIC   (WordInsn): _fields = (f.PO(30), f.RS(), f.RA(), f.sh1(), f.mb0(), f.mb1(), f.XO_MD(2), f.sh0(), f.Rc(0))
+class RLDIC_  (WordInsn): _fields = (f.PO(30), f.RS(), f.RA(), f.sh1(), f.mb0(), f.mb1(), f.XO_MD(2), f.sh0(), f.Rc(1))
+class RLDCL   (WordInsn): _fields = (f.PO(30), f.RS(), f.RA(), f.RB(),  f.mb0(), f.mb1(), f.XO_MDS(8),         f.Rc(0))
+class RLDCL_  (WordInsn): _fields = (f.PO(30), f.RS(), f.RA(), f.RB(),  f.mb0(), f.mb1(), f.XO_MDS(8),         f.Rc(1))
+class RLDCR   (WordInsn): _fields = (f.PO(30), f.RS(), f.RA(), f.RB(),  f.me0(), f.me1(), f.XO_MDS(9),         f.Rc(0))
+class RLDCR_  (WordInsn): _fields = (f.PO(30), f.RS(), f.RA(), f.RB(),  f.me0(), f.me1(), f.XO_MDS(9),         f.Rc(1))
+class RLDIMI  (WordInsn): _fields = (f.PO(30), f.RS(), f.RA(), f.sh1(), f.mb0(), f.mb1(), f.XO_MD(3), f.sh0(), f.Rc(0))
+class RLDIMI_ (WordInsn): _fields = (f.PO(30), f.RS(), f.RA(), f.sh1(), f.mb0(), f.mb1(), f.XO_MD(3), f.sh0(), f.Rc(1))
+
 class SLW     (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.RB(), f.XO_X( 24), f.Rc(0))
 class SLW_    (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.RB(), f.XO_X( 24), f.Rc(1))
 class SRW     (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.RB(), f.XO_X(536), f.Rc(0))
@@ -244,6 +257,15 @@ class SRAWI   (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.SH(), f.XO_X(82
 class SRAWI_  (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.SH(), f.XO_X(824), f.Rc(1))
 class SRAW    (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.RB(), f.XO_X(792), f.Rc(0))
 class SRAW_   (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.RB(), f.XO_X(792), f.Rc(1))
+
+class SLD     (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.RB(),  f.XO_X( 27),           f.Rc(0))
+class SLD_    (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.RB(),  f.XO_X( 27),           f.Rc(1))
+class SRD     (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.RB(),  f.XO_X(539),           f.Rc(0))
+class SRD_    (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.RB(),  f.XO_X(539),           f.Rc(1))
+class SRADI   (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.sh1(), f.XO_XS(413), f.sh0(), f.Rc(0))
+class SRADI_  (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.sh1(), f.XO_XS(413), f.sh0(), f.Rc(1))
+class SRAD    (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.RB(),  f.XO_X(794),           f.Rc(0))
+class SRAD_   (WordInsn): _fields = (f.PO(31), f.RS(), f.RA(), f.RB(),  f.XO_X(794),           f.Rc(1))
 
 # BCD Assist
 
